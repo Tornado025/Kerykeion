@@ -1,0 +1,31 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: kerykeion
+      POSTGRES_USER: kerykeion
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-local-demo-only}
+    ports: ["127.0.0.1:55433:5432"]
+    volumes: ["postgres_data:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U kerykeion -d kerykeion"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+  mongo:
+    image: mongo:7
+    ports: ["127.0.0.1:27018:27017"]
+    volumes: ["mongo_data:/data/db"]
+  neo4j:
+    image: neo4j:5-community
+    environment:
+      NEO4J_AUTH: neo4j/${NEO4J_PASSWORD:-local-demo-only}
+      NEO4J_server_memory_heap_initial__size: 256m
+      NEO4J_server_memory_heap_max__size: 512m
+      NEO4J_server_memory_pagecache_size: 256m
+    ports: ["127.0.0.1:17475:7474", "127.0.0.1:17688:7687"]
+    volumes: ["neo4j_data:/data"]
+volumes:
+  postgres_data:
+  mongo_data:
+  neo4j_data:

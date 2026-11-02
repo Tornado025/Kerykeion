@@ -1,0 +1,9 @@
+{
+  "dataset": "clinvar-three-gene-germline-grch38-v1",
+  "genes": ["BRCA1", "BRCA2", "TP53"],
+  "classification_channel": "germline",
+  "aggregation_policy": "highest-review-known-group-v1",
+  "target": "endpoint-group-change",
+  "horizons": [1, 3],
+  "note": "Aggregation is a transparent reconstruction to validate against official groups, not a claim of perfect ClinVar equivalence. Archive dates use verified HTTP Last-Modified dates; local ingestion timestamps are separate."
+}

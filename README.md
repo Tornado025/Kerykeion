@@ -1,0 +1,106 @@
+# Kerykeion
+
+A release-aware ClinVar research application: historical assertion versions, reconstructed variant states, change auditing and time-ordered review queues. The React interface follows the caduceus design reference: Helvetica Neue, a flat white canvas, thin list dividers and restrained red/blue accents.
+
+## Stack
+
+- React + TypeScript + Vite frontend, production-served by FastAPI
+- PostgreSQL 16: normalized history, states, events, runs and outcomes
+- MongoDB 7: historical submitted evidence, feature vectors and feature-context explanations
+- Neo4j 5: assertion episodes, submitter/variant/gene connections and release changes
+- scikit-learn: logistic regression and boosted trees, alongside transparent heuristics
+
+## Local setup
+
+Use Python 3.12 and Node 24 (or a Vite-supported Node version). Docker Desktop must be running.
+
+```bash
+cp .env.example .env
+python3.12 -m venv .venv
+.venv/bin/pip install -r requirements.lock
+docker compose up -d
+.venv/bin/python -m backend.cli migrate
+npm --prefix frontend ci
+npm --prefix frontend run build
+.venv/bin/python -m uvicorn backend.app:app --host 127.0.0.1 --port 8001
+```
+
+Open http://127.0.0.1:8001. Keep the server bound to loopback: the provided database passwords are local demo defaults, not a public deployment configuration. For frontend development run `npm --prefix frontend run dev`; Vite proxies `/api` to port 8001.
+
+## Import the initial real-data slice
+
+```bash
+.venv/bin/python -m etl.fetch 2025-01 2025-02 2025-03
+.venv/bin/python -m scripts.build_demo 2025-01 2025-02 2025-03
+```
+
+The adapter selects unambiguous GRCh38 records for BRCA1 (672), BRCA2 (675) and TP53 (7157). It reads the historical germline classification column; somatic-specific columns are not used as classification labels. The source has no submitter identifier in the selected TSV format, so names receive stable hashed local identifiers. A renamed submitter on an existing accession is treated as an identity conflict requiring review, not silently merged.
+
+The first fetch transfers full public compressed source files, using six verified range workers and checkpoint files. Filtering reduces retained data, not network transfer. After a complete selected extract is atomically saved, raw compressed downloads are removed. Selected extracts are cached in ignored `data/extracts/`, with complete-source SHA-256s, URLs, byte counts and header mappings. No source files or data dumps are committed.
+
+Submission archives have explanatory text before their actual tabular header. The adapter searches for the `VariationID` header rather than treating the first line as a column name. Archives from 2025 onward are supported in the top-level monthly directory; earlier years use year subdirectories. A changed archive format must be inspected rather than guessed.
+
+For an unattended import alongside a still-running fetch, use `scripts.build_demo --wait ...`. Its durable status is `artifacts/demo-progress.json`; logs can be redirected to `artifacts/build-demo.log`. The script publishes each complete release, scores runs and replays projections. The first release supplies history but cannot train a future-change model by itself.
+
+## Add a later archive during the demo
+
+```bash
+.venv/bin/python -m etl.fetch 2025-04
+# Generate and save origin-3 scores before importing the new endpoint:
+.venv/bin/python -m backend.cli train --origin 3 --horizon 1
+# Publish April, refresh outcomes/metrics, and replay projections:
+.venv/bin/python -m scripts.build_demo 2025-04
+.venv/bin/python -m scripts.report
+```
+
+No schema change is needed to add a later month. The React release catalogue polls for accepted imports. An explicitly selected old release remains pinned. If the exact selected extract is imported again, the importer returns `unchanged`; a different manifest for an already published month is rejected. Never mix synthetic fixtures and real archives in the same dataset.
+
+## What works and what it means
+
+- Gene/variant searches, class filters, pagination and release selection
+- Historical assertions selected by `[first_release, last_release)` visibility; old views exclude later states, events and realized outcomes
+- A normalized event view reconstructs source/destination classes from endpoint states
+- Official-versus-reconstructed group comparisons for each variant/release, including explicit mismatches
+- Outbox delivery with independent MongoDB and Neo4j acknowledgements; retries do not duplicate documents or assertion edges
+- Variant evidence fetched from MongoDB and an SVG connection view backed by Neo4j records; this is **not** a 3D molecular structure viewer
+- Immutable as-of feature vectors, rolling-origin runs and deterministic review ranking
+- Average precision, ROC-AUC, Brier score and review-budget precision/recall; undefined/pending values remain distinct from zero
+- CSV queue export, API docs at `/docs` and service/backlog status on Releases
+
+The primary target implemented here is reconstructed **endpoint group change**, not clinical truth or disease risk. Groups are P/V/B/C/O. A horizon-three change and reversal is negative when the endpoint groups match. Review-only events are separate. Outcomes are stored once per variant/origin/horizon and joined to model scores. The small initial window demonstrates the workflow; it does not establish a general temporal-model advantage.
+
+The aggregation policy selects the highest reviewed known classification group; disagreement there gives C. Counts describe all visible selected assertions. The policy is a transparent reconstruction, not a universal reimplementation of every ClinVar rule. Inspect agreement on Releases before interpreting results. Source modification dates are retained as archive dates and checked against the month; local import timestamps are separate.
+
+The current temporal feature subset includes state changes/recency, assertion and submitter deltas, visible assertion arrival windows, evaluation-date ages/missingness and recent tracked revisions. `history_length` explicitly records partial early history. Larger-cohort research extensions include complete submitter-rate features, stronger warm-up protocols, paired uncertainty intervals, ablations and held-out final-origin tuning. The simple small-window benchmark should not be reported as those completed experiments.
+
+Model artifacts live under ignored `artifacts/models/`. An existing run is keyed by its source cutoff, model configuration, feature definition and implementation hash. Labels mature only after an endpoint arrives; training outcomes must be observed by the test origin. Local feature-context explanations expose the inputs; they are not fabricated SHAP values or causal explanations.
+
+## Projections and health
+
+```bash
+.venv/bin/python -m backend.cli project
+.venv/bin/python -m backend.cli health
+.venv/bin/python -m scripts.report
+```
+
+Projection delivery is eventual, not one transaction across all three stores. Pending counts are visible on Releases. Historical SCV episode keys prevent duplicate graph edges. Replaying an older event reads the current authoritative intervals, so it cannot reopen a newer closed episode.
+
+The API is read-only by default. The optional projection-replay endpoint requires an explicit `WRITE_TOKEN` header configured through `.env`. Archive imports remain deliberate local CLI operations.
+
+## Tests
+
+```bash
+RUN_DB_TESTS=1 .venv/bin/python -m pytest -q
+# Include both other stores, with disposable test namespaces:
+RUN_DB_TESTS=1 RUN_PROJECTION_TESTS=1 .venv/bin/python -m pytest -q
+npm --prefix frontend test
+npm --prefix frontend run build
+```
+
+Database tests create disposable schemas and clean only those schemas. Projection tests use UUID-prefixed test namespaces/databases and remove only their own fixtures. Synthetic fixture records are clearly tagged and are never presented as archive observations. CI runs PostgreSQL integration tests and React build/tests; the cross-store replay test is opt-in locally.
+
+## Reproducibility and scope
+
+`config/project.json` names the dataset contract; migrations document physical facts and support tables. Use a separate database/schema and projection namespace for a changed cohort, parser or aggregation contract. Do not rewrite sealed history behind existing predictions. The sample DDL plus operational metadata is intentionally more detailed than the conceptual ER.
+
+`artifacts/verification-report.json` is generated from actual current rows and service queries. `docs/decisions.md` explains temporal and normalization choices. The project imports public ClinVar archives; no patient-level input is requested.
