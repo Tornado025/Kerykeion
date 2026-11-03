@@ -104,3 +104,19 @@ Database tests create disposable schemas and clean only those schemas. Projectio
 `config/project.json` names the dataset contract; migrations document physical facts and support tables. Use a separate database/schema and projection namespace for a changed cohort, parser or aggregation contract. Do not rewrite sealed history behind existing predictions. The sample DDL plus operational metadata is intentionally more detailed than the conceptual ER.
 
 `artifacts/verification-report.json` is generated from actual current rows and service queries. `docs/decisions.md` explains temporal and normalization choices. The project imports public ClinVar archives; no patient-level input is requested.
+
+### Archive-only backfill
+
+To fetch, import and project a chronological list without training models:
+
+```sh
+.venv/bin/python -m scripts.backfill 2025-03 2025-04
+```
+
+Each complete extract is cached; repeated identical imports are idempotent. The
+runner stops on errors instead of skipping a month. Inspect
+`artifacts/backfill-progress.json` and the redirected log for progress. Stop the
+runner to pause; run the same month list again to resume. Only BRCA1, BRCA2 and
+TP53 are selected from the full archives. Check NCBI's paired monthly archive
+listing before requesting a month; November 2026 was not published when checked
+on 2 November 2026 (paired files were available through October 2026).

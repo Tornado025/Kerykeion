@@ -12,7 +12,7 @@ export function useResource<T>(path:string|null){
   const controller=new AbortController();
   setState(s=>({path,data:s.path===path?s.data:null,error:'',loading:true}));
   get<T>(path,controller.signal).then(data=>{if(!controller.signal.aborted)setState({path,data,error:'',loading:false});})
-   .catch(e=>{if(e.name!=='AbortError')setState({path,data:null,error:e.message,loading:false});});
+   .catch(e=>{if(!controller.signal.aborted&&e.name!=='AbortError')setState(s=>({path,data:s.path===path?s.data:null,error:e.message,loading:false}));});
   return()=>controller.abort();
  },[path,attempt]);
  const matches=state.path===path;

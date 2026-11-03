@@ -40,13 +40,13 @@ def changes(release:int|None=Query(None,ge=1),limit:int=Query(100,ge=1,le=1000))
 @app.get('/api/models')
 def models():return services.models()
 @app.get('/api/audit-queue')
-def queue(model:int|None=Query(None,ge=1),limit:int=Query(100,ge=1,le=1000),budget:int=Query(5,ge=1,le=100)):
-    return services.audit_queue(model,limit,budget)
+def queue(model:int|None=Query(None,ge=1),limit:int=Query(100,ge=1,le=1000),budget:int=Query(5,ge=1,le=100),classification:str=Query("",pattern="^[PVBCO]?$"),gene:str=Query("",pattern="^(BRCA1|BRCA2|TP53)?$")):
+    return services.audit_queue(model,limit,budget,classification,gene)
 @app.get('/api/audit-queue.csv')
-def queue_csv(model:int=Query(ge=1),budget:int=Query(5,ge=1,le=100)):
-    result=services.audit_queue(model,100000,budget)
+def queue_csv(model:int=Query(ge=1),budget:int=Query(5,ge=1,le=100),classification:str=Query("",pattern="^[PVBCO]?$"),gene:str=Query("",pattern="^(BRCA1|BRCA2|TP53)?$")):
+    result=services.audit_queue(model,100000,budget,classification,gene)
     out=io.StringIO();w=csv.writer(out);w.writerow(['rank','variant_id','gene','score','origin_release','horizon','realized_label'])
-    for p in result['predictions']:w.writerow([p['audit_rank'],p['variant_id'],p['gene_symbol'],p['score'],p['origin_release_id'],p['horizon'],p['realized_label']])
+    for p in result['predictions']:w.writerow([p['review_rank'],p['variant_id'],p['gene_symbol'],p['score'],p['origin_release_id'],p['horizon'],p['realized_label']])
     return StreamingResponse(iter([out.getvalue()]),media_type='text/csv',headers={'Content-Disposition':'attachment; filename="audit-queue.csv"'})
 @app.post('/api/projections/replay')
 def replay(x_write_token:str=Header('')):

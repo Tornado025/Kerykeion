@@ -77,7 +77,7 @@ def changes(rid=None,limit=100):
 def models():
     with connect() as c:return c.execute('SELECT m.*,r.label,b.metrics FROM model_version m JOIN release r ON r.release_id=m.origin_release_id LEFT JOIN benchmark_result b USING(model_id) ORDER BY m.origin_release_id DESC,m.model_id').fetchall()
 
-def audit_queue(model_id=None,limit=100,budget=5):
+def audit_queue(model_id=None,limit=100,budget=5,classification="",gene=""):
     with connect() as c:
         if model_id is None:
             row=c.execute('SELECT model_id FROM model_version ORDER BY origin_release_id DESC,model_id DESC LIMIT 1').fetchone()
@@ -85,10 +85,17 @@ def audit_queue(model_id=None,limit=100,budget=5):
             model_id=row['model_id']
         model=c.execute('SELECT m.*,r.label FROM model_version m JOIN release r ON r.release_id=m.origin_release_id WHERE model_id=%s',(model_id,)).fetchone()
         if not model:raise LookupError('Model run not found.')
-        n=c.execute('SELECT count(*) n FROM drift_prediction WHERE model_id=%s',(model_id,)).fetchone()['n']
+        where='p.model_id=%s'
+        args=[model_id]
+        if classification:where+=' AND s.aggregate_class=%s';args.append(classification)
+        if gene:where+=' AND g.gene_symbol=%s';args.append(gene.upper())
+        source='FROM prediction_results p JOIN variant v USING(variant_id) JOIN gene g USING(gene_id) JOIN variant_state s ON s.variant_id=p.variant_id AND s.release_id=p.origin_release_id'
+        n=c.execute(f'SELECT count(*) n {source} WHERE {where}',args).fetchone()['n']
         import math
         k=max(1,math.ceil(n*budget/100)) if n else 0
-        rows=c.execute('''SELECT p.*,v.variant_name,g.gene_symbol FROM prediction_results p JOIN variant v USING(variant_id) JOIN gene g USING(gene_id) WHERE model_id=%s AND audit_rank<=%s ORDER BY audit_rank LIMIT %s''',(model_id,k,limit)).fetchall()
+        rows=c.execute(f"""SELECT p.*,v.variant_name,g.gene_symbol,s.aggregate_class,
+          row_number() OVER(ORDER BY p.audit_rank) AS review_rank
+          {source} WHERE {where} ORDER BY p.audit_rank LIMIT %s""",args+[min(k,limit)]).fetchall()
         return dict(model=model,predictions=rows,total=n,budget_count=k)
 
 def provenance(vid,rid=None):

@@ -12,3 +12,16 @@
 10. UI: React + TypeScript + Vite, with the reference design retained. The former static implementation is removed. Kerykeion is the only product brand; ClinVar remains the public data source.
 11. Corrections and changed contracts require a separate frozen dataset revision. Source archives/filtered extracts and model artifacts are ignored by Git; their manifest hashes are persisted.
 12. Current source schema lacks a numeric submitter ID. The fallback is a local name hash; an identity change on an existing SCV fails explicitly and needs review. No unverified lab-identity merge is performed.
+
+## Submitter name changes in historical TSV archives
+
+March 2025 retains SCV accessions while changing some organisation names (for
+example, 3billion to 3billion, Medical Genetics). Because the TSV provides names
+rather than stable organisation IDs, the importer records `submitter_alias`
+entries supported by unchanged SCV and variant ownership. An alias must resolve
+to one existing organisation; contradictory evidence, changed variant ownership
+or changed provider IDs remain errors. New SCVs with the same renamed name ID
+use that canonical organisation too. Original submitted names stay in raw evidence;
+name changes start a new evidence episode. The organisation table retains its
+first observed display name. This is a documented identity heuristic, not an
+assertion that the source provided an official organisation identifier.

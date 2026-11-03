@@ -103,6 +103,16 @@ def test_api_and_model_pipeline(database):
         assert client.get('/api/genes/BRCA1/variants?limit=10000').status_code==422
         assert client.post('/api/projections/replay').status_code==403
         assert client.get('/api/audit-queue.csv?model=1').status_code==200
+        filtered=client.get('/api/audit-queue?model=1&gene=BRCA1&classification=P&budget=1').json()
+        assert filtered['total']>0 and filtered['budget_count']==1
+        assert len(filtered['predictions'])==1
+        assert filtered['predictions'][0]['aggregate_class']=='P'
+        assert filtered['predictions'][0]['gene_symbol']=='BRCA1'
+        assert filtered['predictions'][0]['review_rank']==1
+        csv_result=client.get('/api/audit-queue.csv?model=1&gene=BRCA1&classification=P&budget=1')
+        assert len(csv_result.text.strip().splitlines())==2
+        assert client.get('/api/audit-queue?classification=bad').status_code==422
+
 
 def test_archive_header_after_comment_preamble(tmp_path):
     import gzip
@@ -140,3 +150,32 @@ def test_projection_partial_retry_and_idempotency(database,monkeypatch):
         mongo.drop_database(namespace);mongo.close()
         with graph.session() as s:s.run('MATCH (n {dataset:$dataset}) DETACH DELETE n',dataset=namespace).consume()
         graph.close()
+
+def test_submitter_alias_requires_consistent_scv_ownership():
+    from etl.importer import resolve_submitter_aliases
+    owner={'SCV1':dict(variant_id=1,submitter_id='name:old')}
+    rows=[dict(scv_accession='SCV1',variant_id=1,submitter_id='name:new',submitter_name='Renamed lab'),
+          dict(scv_accession='SCV2',variant_id=2,submitter_id='name:new',submitter_name='Renamed lab')]
+    aliases,_=resolve_submitter_aliases(rows,owner,{})
+    assert aliases=={'name:new':'name:old'}
+    with pytest.raises(ValueError,match='Ambiguous'):
+        resolve_submitter_aliases(rows,owner,{'name:new':'name:other'})
+    with pytest.raises(ValueError,match='variant mapping'):
+        resolve_submitter_aliases([dict(rows[0],variant_id=99)],owner,{})
+    with pytest.raises(ValueError,match='identity mapping'):
+        resolve_submitter_aliases([dict(rows[0],submitter_id='123')],owner,{})
+
+
+def test_renamed_submitter_keeps_identity_and_historical_evidence(database):
+    docs=list(documents())
+    for a in docs[0]['assertions']:
+        if a['submitter_id']=='A':a['submitter_id']='name:old'
+    for a in docs[1]['assertions']:
+        if a['submitter_id']=='A':
+            a['submitter_id']='name:new';a['submitter_name']='Renamed lab';a['raw']={'Submitter':'Renamed lab'}
+    import_document(docs[0]);import_document(docs[1])
+    with connect() as c:
+        alias=c.execute('SELECT * FROM submitter_alias').fetchone()
+        assert alias['submitter_id']=='name:old'
+        assert not c.execute("SELECT 1 FROM submitter WHERE submitter_id='name:new'").fetchone()
+        assert c.execute("SELECT 1 FROM assertion_version WHERE raw->>'Submitter'='Renamed lab'").fetchone()

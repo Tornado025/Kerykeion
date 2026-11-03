@@ -36,6 +36,32 @@ def mature_outcomes(conn):
     JOIN variant_state b ON b.variant_id=a.variant_id AND b.release_id=a.release_id+h.h
     ON CONFLICT DO NOTHING''')
 
+def resolve_submitter_aliases(assertions, owners, known):
+    """Infer only unambiguous name-ID aliases from unchanged SCV ownership.
+
+    Numeric/provider IDs and variant reassignment remain hard errors. Existing
+    assertions provide evidence for the rename; apply it to new SCVs as well.
+    """
+    aliases = dict(known)
+    names = {}
+    for a in assertions:
+        source = a['submitter_id']
+        names[source] = a['submitter_name']
+        owner = owners.get(a['scv_accession'])
+        if not owner:
+            continue
+        if owner['variant_id'] != a['variant_id']:
+            raise ValueError(f"Assertion variant mapping changed: {a['scv_accession']}")
+        target = owner['submitter_id']
+        if source == target:
+            continue
+        if not source.startswith('name:') or not target.startswith('name:'):
+            raise ValueError(f"Assertion identity mapping changed: {a['scv_accession']}")
+        if source in aliases and aliases[source] != target:
+            raise ValueError(f'Ambiguous submitter alias: {source}')
+        aliases[source] = target
+    return aliases, names
+
 def import_document(doc):
     manifest = digest(doc)
     with connect() as conn:
@@ -56,8 +82,17 @@ def import_document(doc):
         seen={}; duplicates=0; submitters={}; reviews={}; new_assertions=[]; closures=[]; versions=[]
         owners={r['scv_accession']:r for r in conn.execute('SELECT scv_accession,variant_id,submitter_id FROM clinical_assertion').fetchall()}
         latest={r['scv_accession']:r for r in conn.execute('SELECT DISTINCT ON(scv_accession) scv_accession,version_no,content_hash,last_release_id FROM assertion_version ORDER BY scv_accession,version_no DESC').fetchall()}
-        for a in doc['assertions']:
-            identity=a['scv_accession'];h=digest({k:a[k] for k in ('variant_id','submitter_id','class_code','review_status','date_evaluated')})
+        known={r['source_submitter_id']:r['submitter_id'] for r in conn.execute('SELECT * FROM submitter_alias')}
+        aliases,alias_names=resolve_submitter_aliases(doc['assertions'],owners,known)
+        for original in doc['assertions']:
+            a=dict(original)
+            source=a['submitter_id']
+            a['submitter_id']=aliases.get(source,source)
+            identity=a['scv_accession']
+            content={k:a[k] for k in ('variant_id','submitter_id','class_code','review_status','date_evaluated')}
+            # Retain a new raw evidence episode when the submitted name changes.
+            if source!=a['submitter_id']:content['source_submitter_id']=source
+            h=digest(content)
             if identity in seen:
                 if seen[identity]!=h:raise ValueError(f'Conflicting duplicate assertion in one release: {identity}')
                 duplicates+=1;continue
@@ -72,6 +107,7 @@ def import_document(doc):
         with conn.cursor() as cur:
             cur.executemany('INSERT INTO submitter(submitter_id,submitter_name) VALUES(%s,%s) ON CONFLICT DO NOTHING',list(submitters.items()))
             cur.executemany('INSERT INTO review_status VALUES(%s,%s,%s) ON CONFLICT DO NOTHING',[(v,v,n) for v,n in reviews.items()])
+            cur.executemany('INSERT INTO submitter_alias VALUES(%s,%s,%s,%s,%s) ON CONFLICT DO NOTHING',[(source,target,alias_names[source],rid,'unchanged SCV accession and variant ownership') for source,target in aliases.items() if source not in known])
             cur.executemany('INSERT INTO clinical_assertion VALUES(%s,%s,%s,%s)',new_assertions)
             cur.executemany('UPDATE assertion_version SET last_release_id=%s WHERE scv_accession=%s AND version_no=%s',closures)
             cur.executemany('INSERT INTO assertion_version VALUES(%s,%s,%s,%s,%s,%s,NULL,%s,%s)',versions)
