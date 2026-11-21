@@ -1,0 +1,1117 @@
+{
+  "dataset": {
+    "dataset": "clinvar-three-gene-germline-grch38-v1",
+    "genes": [
+      "BRCA1",
+      "BRCA2",
+      "TP53"
+    ],
+    "classification_channel": "germline",
+    "aggregation_policy": "highest-review-known-group-v1",
+    "target": "endpoint-group-change",
+    "horizons": [
+      1,
+      3
+    ],
+    "note": "Aggregation is a transparent reconstruction to validate against official groups, not a claim of perfect ClinVar equivalence. Archive dates use verified HTTP Last-Modified dates; local ingestion timestamps are separate."
+  },
+  "releases": [
+    {
+      "release_id": 1,
+      "label": "2025-01",
+      "stats": {
+        "policy": "highest-review-known-group-v1",
+        "adapter": "germline-grch38-single-gene-v1",
+        "matched": 36221,
+        "rejected": 326,
+        "variants": 36223,
+        "assertions": 121933,
+        "mismatched": 2,
+        "duplicate_rows": 0
+      },
+      "manifest_sha256": "5c4692ef63b7d8497b18f9f50928f6c30210d03428f7de63611e472f1594d572"
+    },
+    {
+      "release_id": 2,
+      "label": "2025-02",
+      "stats": {
+        "policy": "highest-review-known-group-v1",
+        "adapter": "germline-grch38-single-gene-v1",
+        "matched": 36610,
+        "rejected": 326,
+        "variants": 36616,
+        "assertions": 123477,
+        "mismatched": 6,
+        "duplicate_rows": 0
+      },
+      "manifest_sha256": "732479ac55583043ef85390e465d28775e012c7a495fdc9b13b940ebbdf8d2aa"
+    },
+    {
+      "release_id": 3,
+      "label": "2025-03",
+      "stats": {
+        "policy": "highest-review-known-group-v1",
+        "adapter": "germline-grch38-single-gene-v1",
+        "matched": 37408,
+        "rejected": 326,
+        "variants": 37416,
+        "assertions": 125137,
+        "mismatched": 8,
+        "duplicate_rows": 0
+      },
+      "manifest_sha256": "76eb1970b9c118e7345f211062d3c9b380b694115b656fe1ccefb5d75ab17777"
+    },
+    {
+      "release_id": 4,
+      "label": "2025-04",
+      "stats": {
+        "policy": "highest-review-known-group-v1",
+        "adapter": "germline-grch38-single-gene-v1",
+        "matched": 37467,
+        "rejected": 326,
+        "variants": 37502,
+        "assertions": 125869,
+        "mismatched": 35,
+        "duplicate_rows": 0
+      },
+      "manifest_sha256": "710f5a5a5ebeed83e58c95801d35b490df8e9a7b1a00ed985ecd84ea76f8b4b3"
+    },
+    {
+      "release_id": 5,
+      "label": "2025-05",
+      "stats": {
+        "policy": "highest-review-known-group-v1",
+        "adapter": "germline-grch38-single-gene-v1",
+        "matched": 37453,
+        "rejected": 326,
+        "variants": 37774,
+        "assertions": 126127,
+        "mismatched": 321,
+        "duplicate_rows": 0
+      },
+      "manifest_sha256": "ca36912b5d0d04b0ff93e91e4a0ed96079d89cd8e57db6ec5bf7fe07ab09c255"
+    },
+    {
+      "release_id": 6,
+      "label": "2025-06",
+      "stats": {
+        "policy": "highest-review-known-group-v1",
+        "adapter": "germline-grch38-single-gene-v1",
+        "matched": 37883,
+        "rejected": 326,
+        "variants": 37884,
+        "assertions": 128213,
+        "mismatched": 1,
+        "duplicate_rows": 0
+      },
+      "manifest_sha256": "e4287bfce2df441ac60f7d886a9f862e5fa6c3a8ad1f3fbf36f14de2fe3c3bbe"
+    },
+    {
+      "release_id": 7,
+      "label": "2025-07",
+      "stats": {
+        "policy": "highest-review-known-group-v1",
+        "adapter": "germline-grch38-single-gene-v1",
+        "matched": 37920,
+        "rejected": 326,
+        "variants": 37921,
+        "assertions": 128432,
+        "mismatched": 1,
+        "duplicate_rows": 0
+      },
+      "manifest_sha256": "15882578b06b67e426e31003345f89d8de6427e98a0a0f6a7de3a8ba8f985912"
+    },
+    {
+      "release_id": 8,
+      "label": "2025-08",
+      "stats": {
+        "policy": "highest-review-known-group-v1",
+        "adapter": "germline-grch38-single-gene-v1",
+        "matched": 37197,
+        "rejected": 327,
+        "variants": 37199,
+        "assertions": 124078,
+        "mismatched": 2,
+        "duplicate_rows": 0
+      },
+      "manifest_sha256": "cf70117d5ae8ca6cd862736d46b04f880d5e889125e6c0bd94914778930d5745"
+    },
+    {
+      "release_id": 9,
+      "label": "2025-09",
+      "stats": {
+        "policy": "highest-review-known-group-v1",
+        "adapter": "germline-grch38-single-gene-v1",
+        "matched": 38275,
+        "rejected": 327,
+        "variants": 38277,
+        "assertions": 126122,
+        "mismatched": 2,
+        "duplicate_rows": 0
+      },
+      "manifest_sha256": "1d13ee25d1a7ee14a9ebd17603747f2314f2af5f73c14e867b01f497e0fee8d2"
+    },
+    {
+      "release_id": 10,
+      "label": "2025-10",
+      "stats": {
+        "policy": "highest-review-known-group-v1",
+        "adapter": "germline-grch38-single-gene-v1",
+        "matched": 38304,
+        "rejected": 327,
+        "variants": 38316,
+        "assertions": 126411,
+        "mismatched": 12,
+        "duplicate_rows": 0
+      },
+      "manifest_sha256": "aa4c7f5a15a47ac4b7e0777d7824d3b82b2f051a10049a12c32701935aee9f87"
+    },
+    {
+      "release_id": 11,
+      "label": "2025-11",
+      "stats": {
+        "policy": "highest-review-known-group-v1",
+        "adapter": "germline-grch38-single-gene-v1",
+        "matched": 39167,
+        "rejected": 327,
+        "variants": 39179,
+        "assertions": 127970,
+        "mismatched": 12,
+        "duplicate_rows": 0
+      },
+      "manifest_sha256": "1eacb345102dddade5815d9610186142598dc30db2689d5979e4cc5cb8893728"
+    },
+    {
+      "release_id": 12,
+      "label": "2025-12",
+      "stats": {
+        "policy": "highest-review-known-group-v1",
+        "adapter": "germline-grch38-single-gene-v1",
+        "matched": 39188,
+        "rejected": 327,
+        "variants": 39200,
+        "assertions": 128257,
+        "mismatched": 12,
+        "duplicate_rows": 0
+      },
+      "manifest_sha256": "cbe2c23a882ef3baa5ec33dbf97cb51af14b011e2d636aa687d0c3c973c18e0e"
+    },
+    {
+      "release_id": 13,
+      "label": "2026-01",
+      "stats": {
+        "policy": "highest-review-known-group-v1",
+        "adapter": "germline-grch38-single-gene-v1",
+        "matched": 39241,
+        "rejected": 327,
+        "variants": 39253,
+        "assertions": 129001,
+        "mismatched": 12,
+        "duplicate_rows": 0
+      },
+      "manifest_sha256": "d67ca7a168b6f641b0753c8682e59f6c577b16be4ccccd26ed52fad1b67fd25d"
+    },
+    {
+      "release_id": 14,
+      "label": "2026-02",
+      "stats": {
+        "policy": "highest-review-known-group-v1",
+        "adapter": "germline-grch38-single-gene-v1",
+        "matched": 39483,
+        "rejected": 327,
+        "variants": 39495,
+        "assertions": 130309,
+        "mismatched": 12,
+        "duplicate_rows": 0
+      },
+      "manifest_sha256": "e4c21f7a022d8e501ea30d625872e61c94c60ed0fd02b516f27921396b4c198b"
+    },
+    {
+      "release_id": 15,
+      "label": "2026-03",
+      "stats": {
+        "policy": "highest-review-known-group-v1",
+        "adapter": "germline-grch38-single-gene-v1",
+        "matched": 39892,
+        "rejected": 327,
+        "variants": 39904,
+        "assertions": 131914,
+        "mismatched": 12,
+        "duplicate_rows": 0
+      },
+      "manifest_sha256": "3ab740a35d897a9948c1ecbc8d7956fd9edef5f66a250c7c98ac3a60e30e69d5"
+    },
+    {
+      "release_id": 16,
+      "label": "2026-04",
+      "stats": {
+        "policy": "highest-review-known-group-v1",
+        "adapter": "germline-grch38-single-gene-v1",
+        "matched": 40107,
+        "rejected": 327,
+        "variants": 40119,
+        "assertions": 132348,
+        "mismatched": 12,
+        "duplicate_rows": 0
+      },
+      "manifest_sha256": "fb1051e6a48949ffa5868e05f010c2bfa2ab40098cc6277b022637b97383991b"
+    },
+    {
+      "release_id": 17,
+      "label": "2026-05",
+      "stats": {
+        "policy": "highest-review-known-group-v1",
+        "adapter": "germline-grch38-single-gene-v1",
+        "matched": 40293,
+        "rejected": 327,
+        "variants": 40305,
+        "assertions": 133113,
+        "mismatched": 12,
+        "duplicate_rows": 0
+      },
+      "manifest_sha256": "84bdd626be94b22162424783dc85e0dbbbc8e477625c90a4327c10f6f7976d81"
+    },
+    {
+      "release_id": 18,
+      "label": "2026-06",
+      "stats": {
+        "policy": "highest-review-known-group-v1",
+        "adapter": "germline-grch38-single-gene-v1",
+        "matched": 40308,
+        "rejected": 329,
+        "variants": 40320,
+        "assertions": 133463,
+        "mismatched": 12,
+        "duplicate_rows": 0
+      },
+      "manifest_sha256": "803f1daff6c76dafcb0076a68434e93501c49e847e4d9a271465f2534c67ebcd"
+    },
+    {
+      "release_id": 19,
+      "label": "2026-07",
+      "stats": {
+        "policy": "highest-review-known-group-v1",
+        "adapter": "germline-grch38-single-gene-v1",
+        "matched": 40516,
+        "rejected": 329,
+        "variants": 40528,
+        "assertions": 134021,
+        "mismatched": 12,
+        "duplicate_rows": 0
+      },
+      "manifest_sha256": "eb2e78d77ce6e68be777d6a80c856863454b54cfd2d9928fca8c2a4505908aee"
+    },
+    {
+      "release_id": 20,
+      "label": "2026-08",
+      "stats": {
+        "policy": "highest-review-known-group-v1",
+        "adapter": "germline-grch38-single-gene-v1",
+        "matched": 40747,
+        "rejected": 329,
+        "variants": 40759,
+        "assertions": 134768,
+        "mismatched": 12,
+        "duplicate_rows": 0
+      },
+      "manifest_sha256": "66a5d8848603d6249bd8876e61175b7d4abeae303cde88c19b077e50d5ad81fe"
+    },
+    {
+      "release_id": 21,
+      "label": "2026-09",
+      "stats": {
+        "policy": "highest-review-known-group-v1",
+        "adapter": "germline-grch38-single-gene-v1",
+        "matched": 40765,
+        "rejected": 332,
+        "variants": 40777,
+        "assertions": 134983,
+        "mismatched": 12,
+        "duplicate_rows": 0
+      },
+      "manifest_sha256": "96a41ec6525c1f4e6a496f4bc2fd730494d22ab6d0a5ad3a0027b82ca649e9cf"
+    },
+    {
+      "release_id": 22,
+      "label": "2026-10",
+      "stats": {
+        "policy": "highest-review-known-group-v1",
+        "adapter": "germline-grch38-single-gene-v1",
+        "matched": 40847,
+        "rejected": 332,
+        "variants": 40859,
+        "assertions": 136528,
+        "mismatched": 12,
+        "duplicate_rows": 0
+      },
+      "manifest_sha256": "39c8a72b0a11f943daeadc32096325234d8b639c2cd98ce087e060c3df2b1898"
+    },
+    {
+      "release_id": 23,
+      "label": "2026-11",
+      "stats": {
+        "policy": "highest-review-known-group-v1",
+        "adapter": "germline-grch38-single-gene-v1",
+        "matched": 41096,
+        "rejected": 335,
+        "variants": 41109,
+        "assertions": 137653,
+        "mismatched": 13,
+        "duplicate_rows": 0
+      },
+      "manifest_sha256": "7c2b870e4aa96f6dacff42dbabb7e9f560bd479072ae7059ba873572c5b3d809"
+    }
+  ],
+  "source_artifacts": [
+    {
+      "release_id": 1,
+      "kind": "submission_summary",
+      "url": "https://ftp.ncbi.nlm.nih.gov/pub/clinvar/tab_delimited/archive/submission_summary_2025-01.txt.gz",
+      "sha256": "72e4e545d66ad46d2c009e2ccc83270d5eeb55873cceb9f9401f018420c74aba",
+      "bytes": 283755743
+    },
+    {
+      "release_id": 1,
+      "kind": "variant_summary",
+      "url": "https://ftp.ncbi.nlm.nih.gov/pub/clinvar/tab_delimited/archive/variant_summary_2025-01.txt.gz",
+      "sha256": "931322c5b576e4d46c82b2e275ef0920661ef9c39c1acf62ed48e6756f24d7aa",
+      "bytes": 288267418
+    },
+    {
+      "release_id": 2,
+      "kind": "submission_summary",
+      "url": "https://ftp.ncbi.nlm.nih.gov/pub/clinvar/tab_delimited/archive/submission_summary_2025-02.txt.gz",
+      "sha256": "e5ccb69926bb749a90700233e7a20c2a715fced5c4c5edfe96a5340150652d5f",
+      "bytes": 297442974
+    },
+    {
+      "release_id": 2,
+      "kind": "variant_summary",
+      "url": "https://ftp.ncbi.nlm.nih.gov/pub/clinvar/tab_delimited/archive/variant_summary_2025-02.txt.gz",
+      "sha256": "342db2ad778c30cc023f167a43d217d46a778d65312cf4d08cf526877685fe2a",
+      "bytes": 334887755
+    },
+    {
+      "release_id": 3,
+      "kind": "submission_summary",
+      "url": "https://ftp.ncbi.nlm.nih.gov/pub/clinvar/tab_delimited/archive/submission_summary_2025-03.txt.gz",
+      "sha256": "d4e03417bf93142a2513059974af5f47e241b5435975d5401a76623197815b86",
+      "bytes": 308843441
+    },
+    {
+      "release_id": 3,
+      "kind": "variant_summary",
+      "url": "https://ftp.ncbi.nlm.nih.gov/pub/clinvar/tab_delimited/archive/variant_summary_2025-03.txt.gz",
+      "sha256": "291b5a5affff2f9c8d4d3d163227aa77b9ef5cbc2b7986e3650060658bd9cec2",
+      "bytes": 351455927
+    },
+    {
+      "release_id": 4,
+      "kind": "submission_summary",
+      "url": "https://ftp.ncbi.nlm.nih.gov/pub/clinvar/tab_delimited/archive/submission_summary_2025-04.txt.gz",
+      "sha256": "ae42630370a100ddf668f590116ff4a529df0300392622fb35b9f2eb7dc3e7cc",
+      "bytes": 312772651
+    },
+    {
+      "release_id": 4,
+      "kind": "variant_summary",
+      "url": "https://ftp.ncbi.nlm.nih.gov/pub/clinvar/tab_delimited/archive/variant_summary_2025-04.txt.gz",
+      "sha256": "3ba0b5e86d404be59332b3825d13dcfddc2ed518c4767b1e07c9b503228c9a96",
+      "bytes": 352730813
+    },
+    {
+      "release_id": 5,
+      "kind": "submission_summary",
+      "url": "https://ftp.ncbi.nlm.nih.gov/pub/clinvar/tab_delimited/archive/submission_summary_2025-05.txt.gz",
+      "sha256": "6ffdc16627c1ad2a677cdbb6ccafad20a1332e3cc6cfb3ae780e4addcda3c01a",
+      "bytes": 314411344
+    },
+    {
+      "release_id": 5,
+      "kind": "variant_summary",
+      "url": "https://ftp.ncbi.nlm.nih.gov/pub/clinvar/tab_delimited/archive/variant_summary_2025-05.txt.gz",
+      "sha256": "50955b7a2607b4123b4a3b725d04db56896ddb9a103abacabdd4838cca940829",
+      "bytes": 360763643
+    },
+    {
+      "release_id": 6,
+      "kind": "submission_summary",
+      "url": "https://ftp.ncbi.nlm.nih.gov/pub/clinvar/tab_delimited/archive/submission_summary_2025-06.txt.gz",
+      "sha256": "11ca76abbea69e3d59f32f15474b501e99549beff849a4aec8332d7bff58c21b",
+      "bytes": 323510381
+    },
+    {
+      "release_id": 6,
+      "kind": "variant_summary",
+      "url": "https://ftp.ncbi.nlm.nih.gov/pub/clinvar/tab_delimited/archive/variant_summary_2025-06.txt.gz",
+      "sha256": "d1e7564091763b57c7119c41c9aa1b1281f434d658f352e8c4959a1aca0b2dda",
+      "bytes": 372259542
+    },
+    {
+      "release_id": 7,
+      "kind": "submission_summary",
+      "url": "https://ftp.ncbi.nlm.nih.gov/pub/clinvar/tab_delimited/archive/submission_summary_2025-07.txt.gz",
+      "sha256": "5a505d85498bbae00c2e91853be4fa586821d993dcb60f78ff0154a9c1905194",
+      "bytes": 325127776
+    },
+    {
+      "release_id": 7,
+      "kind": "variant_summary",
+      "url": "https://ftp.ncbi.nlm.nih.gov/pub/clinvar/tab_delimited/archive/variant_summary_2025-07.txt.gz",
+      "sha256": "87f1478bf1b894b7772c943db3e4858ce01fddb07817746178104751b75f0de2",
+      "bytes": 372755443
+    },
+    {
+      "release_id": 8,
+      "kind": "submission_summary",
+      "url": "https://ftp.ncbi.nlm.nih.gov/pub/clinvar/tab_delimited/archive/submission_summary_2025-08.txt.gz",
+      "sha256": "fd757b03e4921af81ba4764c1a80bd49e6618faab41e11db936936d7527b086a",
+      "bytes": 334204042
+    },
+    {
+      "release_id": 8,
+      "kind": "variant_summary",
+      "url": "https://ftp.ncbi.nlm.nih.gov/pub/clinvar/tab_delimited/archive/variant_summary_2025-08.txt.gz",
+      "sha256": "7062426194ee16ad3d3b7b2fbb557f17c15bdc4d0bcb95aee38a1f384658a43d",
+      "bytes": 382542427
+    },
+    {
+      "release_id": 9,
+      "kind": "submission_summary",
+      "url": "https://ftp.ncbi.nlm.nih.gov/pub/clinvar/tab_delimited/archive/submission_summary_2025-09.txt.gz",
+      "sha256": "dee97cb3c84e8441db64ea87b44d18fedd9fb15842353e70961697090258d550",
+      "bytes": 334851972
+    },
+    {
+      "release_id": 9,
+      "kind": "variant_summary",
+      "url": "https://ftp.ncbi.nlm.nih.gov/pub/clinvar/tab_delimited/archive/variant_summary_2025-09.txt.gz",
+      "sha256": "2ee128fb5ef99d81394ffffd8da5ec6ca302bfe7405704a66a65908b1ce8a50e",
+      "bytes": 383312838
+    },
+    {
+      "release_id": 10,
+      "kind": "submission_summary",
+      "url": "https://ftp.ncbi.nlm.nih.gov/pub/clinvar/tab_delimited/archive/submission_summary_2025-10.txt.gz",
+      "sha256": "9d55341fded9c9077f0f06532d4106f625816f1b2972f0ffbf0441f7657d0e40",
+      "bytes": 336409343
+    },
+    {
+      "release_id": 10,
+      "kind": "variant_summary",
+      "url": "https://ftp.ncbi.nlm.nih.gov/pub/clinvar/tab_delimited/archive/variant_summary_2025-10.txt.gz",
+      "sha256": "b99920190c2eb00382cf9ec154442bb83fe5a14a397f93e6db22c8fda094fc77",
+      "bytes": 384432958
+    },
+    {
+      "release_id": 11,
+      "kind": "submission_summary",
+      "url": "https://ftp.ncbi.nlm.nih.gov/pub/clinvar/tab_delimited/archive/submission_summary_2025-11.txt.gz",
+      "sha256": "8fd6008a6ab9bfc8773bbc5be31c61e611c6f74113dbf9a7cd846408aa469816",
+      "bytes": 348275487
+    },
+    {
+      "release_id": 11,
+      "kind": "variant_summary",
+      "url": "https://ftp.ncbi.nlm.nih.gov/pub/clinvar/tab_delimited/archive/variant_summary_2025-11.txt.gz",
+      "sha256": "3034fa8d4c94ce590d65beda166ac5a5ba6aa919dd3b6c2b755dae71ade9325a",
+      "bytes": 411580849
+    },
+    {
+      "release_id": 12,
+      "kind": "submission_summary",
+      "url": "https://ftp.ncbi.nlm.nih.gov/pub/clinvar/tab_delimited/archive/submission_summary_2025-12.txt.gz",
+      "sha256": "5e6cb8daa0c6fc6aee681c70145c8475b038791f8d86e01bf99db9b4058132c0",
+      "bytes": 349592777
+    },
+    {
+      "release_id": 12,
+      "kind": "variant_summary",
+      "url": "https://ftp.ncbi.nlm.nih.gov/pub/clinvar/tab_delimited/archive/variant_summary_2025-12.txt.gz",
+      "sha256": "a9c19e813dbffa6cfecaf3ff2ce552f55aed113a2168ef84138f46be2efcbfd5",
+      "bytes": 412142377
+    },
+    {
+      "release_id": 13,
+      "kind": "submission_summary",
+      "url": "https://ftp.ncbi.nlm.nih.gov/pub/clinvar/tab_delimited/archive/submission_summary_2026-01.txt.gz",
+      "sha256": "4320ccb90f7c40cb4fe6a00dbf3407735d28fb11dcc1a41654f4dfd93520dd1a",
+      "bytes": 351445028
+    },
+    {
+      "release_id": 13,
+      "kind": "variant_summary",
+      "url": "https://ftp.ncbi.nlm.nih.gov/pub/clinvar/tab_delimited/archive/variant_summary_2026-01.txt.gz",
+      "sha256": "37bffab7594d26d74882dd21721300911ce1d625033ff1b77fb7b6a35b50d74c",
+      "bytes": 412880955
+    },
+    {
+      "release_id": 14,
+      "kind": "submission_summary",
+      "url": "https://ftp.ncbi.nlm.nih.gov/pub/clinvar/tab_delimited/archive/submission_summary_2026-02.txt.gz",
+      "sha256": "434b58db4798c3c04765a37ad8fb80653f553cf5ef99747093122ae60ea16544",
+      "bytes": 361310561
+    },
+    {
+      "release_id": 14,
+      "kind": "variant_summary",
+      "url": "https://ftp.ncbi.nlm.nih.gov/pub/clinvar/tab_delimited/archive/variant_summary_2026-02.txt.gz",
+      "sha256": "02c4d077e722f03227b38591625f275b4ae60afb2eaafd8ecb9cd3c3e3d406bc",
+      "bytes": 422086052
+    },
+    {
+      "release_id": 15,
+      "kind": "submission_summary",
+      "url": "https://ftp.ncbi.nlm.nih.gov/pub/clinvar/tab_delimited/archive/submission_summary_2026-03.txt.gz",
+      "sha256": "dfc875bc831292b857d8d0a85eb57157452e12f04fbc3591addbf59208de727f",
+      "bytes": 372547268
+    },
+    {
+      "release_id": 15,
+      "kind": "variant_summary",
+      "url": "https://ftp.ncbi.nlm.nih.gov/pub/clinvar/tab_delimited/archive/variant_summary_2026-03.txt.gz",
+      "sha256": "0d6c0c8760529befdfc1fbfcfa90cfb0aa11bfc5fe72176ac9bc9820884f710e",
+      "bytes": 434541812
+    },
+    {
+      "release_id": 16,
+      "kind": "submission_summary",
+      "url": "https://ftp.ncbi.nlm.nih.gov/pub/clinvar/tab_delimited/archive/submission_summary_2026-04.txt.gz",
+      "sha256": "1bd2e1f6df82c3f931deb5a81888e8eb59c93269066ef74cbd531b278818e35b",
+      "bytes": 373962702
+    },
+    {
+      "release_id": 16,
+      "kind": "variant_summary",
+      "url": "https://ftp.ncbi.nlm.nih.gov/pub/clinvar/tab_delimited/archive/variant_summary_2026-04.txt.gz",
+      "sha256": "86bc45414b3ccaf4dedd0d529cbbf603676e5f90b37b1301257af2b96f773b45",
+      "bytes": 435575707
+    },
+    {
+      "release_id": 17,
+      "kind": "submission_summary",
+      "url": "https://ftp.ncbi.nlm.nih.gov/pub/clinvar/tab_delimited/archive/submission_summary_2026-05.txt.gz",
+      "sha256": "8b1a4b9a4fa4696910db292f2fff95a875fd7c825e0dd79eabbd742b6a93f01d",
+      "bytes": 380512398
+    },
+    {
+      "release_id": 17,
+      "kind": "variant_summary",
+      "url": "https://ftp.ncbi.nlm.nih.gov/pub/clinvar/tab_delimited/archive/variant_summary_2026-05.txt.gz",
+      "sha256": "be4bcb4e7e9e2331557c95fde65196b3b1d1d6cc035497c8eedbc73b79a42e4a",
+      "bytes": 438947296
+    },
+    {
+      "release_id": 18,
+      "kind": "submission_summary",
+      "url": "https://ftp.ncbi.nlm.nih.gov/pub/clinvar/tab_delimited/archive/submission_summary_2026-06.txt.gz",
+      "sha256": "95ddc62ab996a68a443c2901f6eb75bb79a747bad788e0c1436626af4ee53855",
+      "bytes": 381749668
+    },
+    {
+      "release_id": 18,
+      "kind": "variant_summary",
+      "url": "https://ftp.ncbi.nlm.nih.gov/pub/clinvar/tab_delimited/archive/variant_summary_2026-06.txt.gz",
+      "sha256": "6da78082f630ec6f8ccc0288a91b14157190e81110070d499a26e41eaf6b7bf0",
+      "bytes": 439287089
+    },
+    {
+      "release_id": 19,
+      "kind": "submission_summary",
+      "url": "https://ftp.ncbi.nlm.nih.gov/pub/clinvar/tab_delimited/archive/submission_summary_2026-07.txt.gz",
+      "sha256": "bf1051d450556631da484edf5a1505bbd0afa33dfc1c246f741a8a741ab55539",
+      "bytes": 383437686
+    },
+    {
+      "release_id": 19,
+      "kind": "variant_summary",
+      "url": "https://ftp.ncbi.nlm.nih.gov/pub/clinvar/tab_delimited/archive/variant_summary_2026-07.txt.gz",
+      "sha256": "b3da921c707ff50cb4822f04d961834a9e89ef864b4c28bb5308245b93ac4077",
+      "bytes": 439937684
+    },
+    {
+      "release_id": 20,
+      "kind": "submission_summary",
+      "url": "https://ftp.ncbi.nlm.nih.gov/pub/clinvar/tab_delimited/archive/submission_summary_2026-08.txt.gz",
+      "sha256": "b84813f8a63c58bad1163bb97a8fe337639a69736857b111b82e4cd3d80f7ee6",
+      "bytes": 385522058
+    },
+    {
+      "release_id": 20,
+      "kind": "variant_summary",
+      "url": "https://ftp.ncbi.nlm.nih.gov/pub/clinvar/tab_delimited/archive/variant_summary_2026-08.txt.gz",
+      "sha256": "230ba6d5ac0869bfb46fecb8d19bd8dbfa9a133bfda2e3f8f5b5b662ae7bf500",
+      "bytes": 441792560
+    },
+    {
+      "release_id": 21,
+      "kind": "submission_summary",
+      "url": "https://ftp.ncbi.nlm.nih.gov/pub/clinvar/tab_delimited/archive/submission_summary_2026-09.txt.gz",
+      "sha256": "b0ccaaa55f6fda051887182906a71f0de5fbdfa619406a2cad438de2208703b6",
+      "bytes": 387212719
+    },
+    {
+      "release_id": 21,
+      "kind": "variant_summary",
+      "url": "https://ftp.ncbi.nlm.nih.gov/pub/clinvar/tab_delimited/archive/variant_summary_2026-09.txt.gz",
+      "sha256": "186ad2838a138f0bc7a79b1b7b6dde5533b105175d293e1131652889529804c9",
+      "bytes": 442495433
+    },
+    {
+      "release_id": 22,
+      "kind": "submission_summary",
+      "url": "https://ftp.ncbi.nlm.nih.gov/pub/clinvar/tab_delimited/archive/submission_summary_2026-10.txt.gz",
+      "sha256": "c93758c972fbeb958b49aa560a374bdaf5c57cc4f159644a19bed88200a870ac",
+      "bytes": 394172714
+    },
+    {
+      "release_id": 22,
+      "kind": "variant_summary",
+      "url": "https://ftp.ncbi.nlm.nih.gov/pub/clinvar/tab_delimited/archive/variant_summary_2026-10.txt.gz",
+      "sha256": "a6a58df4d9049c9187a79a8fb4e70f1f3b5550e1708c6c74b7be0b268f5032da",
+      "bytes": 450727547
+    },
+    {
+      "release_id": 23,
+      "kind": "submission_summary",
+      "url": "https://ftp.ncbi.nlm.nih.gov/pub/clinvar/tab_delimited/archive/submission_summary_2026-11.txt.gz",
+      "sha256": "d0b290331c4fcc2a8fe39ece810796c19945fe037cab9c0a870d3d726703593b",
+      "bytes": 406785046
+    },
+    {
+      "release_id": 23,
+      "kind": "variant_summary",
+      "url": "https://ftp.ncbi.nlm.nih.gov/pub/clinvar/tab_delimited/archive/variant_summary_2026-11.txt.gz",
+      "sha256": "7c39f2d875f3cd1ccd2d568662f06a7df647dd91fc0f51a072a758b08004c72e",
+      "bytes": 457862838
+    }
+  ],
+  "software": {
+    "python": "3.12.14 (main, Aug 25 2026, 13:50:33) [Clang 22.1.3 ]",
+    "platform": "macOS-27.0.1-arm64-arm-64bit"
+  },
+  "model_ids": [
+    188,
+    187,
+    186,
+    185,
+    184,
+    183,
+    182,
+    181,
+    356,
+    355,
+    354,
+    353,
+    352,
+    351,
+    350,
+    349,
+    180,
+    179,
+    178,
+    177,
+    176,
+    175,
+    174,
+    173,
+    348,
+    347,
+    346,
+    345,
+    344,
+    343,
+    342,
+    341,
+    172,
+    171,
+    170,
+    169,
+    168,
+    167,
+    166,
+    165,
+    340,
+    339,
+    338,
+    337,
+    336,
+    335,
+    334,
+    333,
+    164,
+    163,
+    162,
+    161,
+    160,
+    159,
+    158,
+    157,
+    332,
+    331,
+    330,
+    329,
+    328,
+    327,
+    326,
+    325,
+    156,
+    155,
+    154,
+    153,
+    152,
+    151,
+    150,
+    149,
+    324,
+    323,
+    322,
+    321,
+    320,
+    319,
+    318,
+    317,
+    148,
+    147,
+    146,
+    145,
+    144,
+    143,
+    142,
+    141,
+    316,
+    315,
+    314,
+    313,
+    312,
+    311,
+    310,
+    309,
+    140,
+    139,
+    138,
+    137,
+    136,
+    135,
+    134,
+    133,
+    308,
+    307,
+    306,
+    305,
+    304,
+    303,
+    302,
+    301,
+    132,
+    131,
+    130,
+    129,
+    128,
+    127,
+    126,
+    125,
+    300,
+    299,
+    298,
+    297,
+    296,
+    295,
+    294,
+    293,
+    124,
+    123,
+    122,
+    121,
+    120,
+    119,
+    118,
+    117,
+    292,
+    291,
+    290,
+    289,
+    288,
+    287,
+    286,
+    285,
+    116,
+    115,
+    114,
+    113,
+    112,
+    111,
+    110,
+    109,
+    284,
+    283,
+    282,
+    281,
+    280,
+    279,
+    278,
+    277,
+    108,
+    107,
+    106,
+    105,
+    104,
+    103,
+    102,
+    101,
+    276,
+    275,
+    274,
+    273,
+    272,
+    271,
+    270,
+    269,
+    100,
+    99,
+    98,
+    97,
+    96,
+    95,
+    94,
+    93,
+    268,
+    267,
+    266,
+    265,
+    264,
+    263,
+    262,
+    261,
+    92,
+    91,
+    90,
+    89,
+    88,
+    87,
+    86,
+    85,
+    260,
+    259,
+    258,
+    257,
+    256,
+    255,
+    254,
+    253,
+    84,
+    83,
+    82,
+    81,
+    80,
+    79,
+    78,
+    77,
+    252,
+    251,
+    250,
+    249,
+    248,
+    247,
+    246,
+    245,
+    76,
+    75,
+    74,
+    73,
+    72,
+    71,
+    70,
+    69,
+    244,
+    243,
+    242,
+    241,
+    240,
+    239,
+    238,
+    237,
+    68,
+    67,
+    66,
+    65,
+    64,
+    63,
+    62,
+    61,
+    236,
+    235,
+    234,
+    233,
+    232,
+    231,
+    230,
+    229,
+    60,
+    59,
+    58,
+    57,
+    56,
+    55,
+    54,
+    53,
+    228,
+    227,
+    226,
+    225,
+    224,
+    223,
+    222,
+    221,
+    52,
+    51,
+    50,
+    49,
+    48,
+    47,
+    46,
+    45,
+    220,
+    219,
+    218,
+    217,
+    216,
+    215,
+    214,
+    213,
+    44,
+    43,
+    42,
+    41,
+    40,
+    39,
+    38,
+    37,
+    212,
+    211,
+    210,
+    209,
+    208,
+    207,
+    206,
+    205,
+    36,
+    35,
+    34,
+    33,
+    32,
+    31,
+    30,
+    29,
+    204,
+    203,
+    202,
+    201,
+    200,
+    199,
+    198,
+    197,
+    28,
+    27,
+    26,
+    25,
+    24,
+    23,
+    22,
+    21,
+    196,
+    195,
+    194,
+    193,
+    20,
+    19,
+    18,
+    17,
+    16,
+    15,
+    14,
+    13,
+    192,
+    191,
+    190,
+    189,
+    12,
+    11,
+    10,
+    9
+  ],
+  "warmup_releases": 6,
+  "parameters": "Fixed logistic regression and boosted-tree parameters. No future-outcome tuning or model selection.",
+  "uncertainty": [
+    {
+      "method": "logistic",
+      "horizon": 1,
+      "origins": 17,
+      "mean_ap_difference": -0.004401056130034938,
+      "release_block_95_interval": [
+        -0.009480337007271822,
+        -0.0004450837219614909
+      ],
+      "block_length": 3,
+      "seed": 42,
+      "resamples": 2000
+    },
+    {
+      "method": "logistic",
+      "horizon": 3,
+      "origins": 15,
+      "mean_ap_difference": -0.0020915614896407078,
+      "release_block_95_interval": [
+        -0.005001956397992595,
+        0.0005453673557465381
+      ],
+      "block_length": 3,
+      "seed": 42,
+      "resamples": 2000
+    },
+    {
+      "method": "boosted",
+      "horizon": 1,
+      "origins": 17,
+      "mean_ap_difference": 0.0016303709360941045,
+      "release_block_95_interval": [
+        -0.0006665155228878509,
+        0.003947674090514102
+      ],
+      "block_length": 3,
+      "seed": 42,
+      "resamples": 2000
+    },
+    {
+      "method": "boosted",
+      "horizon": 3,
+      "origins": 15,
+      "mean_ap_difference": -0.003298416851087164,
+      "release_block_95_interval": [
+        -0.008958203517929066,
+        0.002701378884401835
+      ],
+      "block_length": 3,
+      "seed": 42,
+      "resamples": 2000
+    }
+  ],
+  "services": {
+    "postgres": {
+      "status": "ready",
+      "releases": 23
+    },
+    "outbox": {
+      "mongo_pending": 0,
+      "neo4j_pending": 0
+    },
+    "mongodb": {
+      "status": "ready",
+      "evidence": 173721
+    },
+    "neo4j": {
+      "status": "ready"
+    }
+  },
+  "final_acceptance": "acceptance_summary.json"
+}

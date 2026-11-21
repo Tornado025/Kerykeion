@@ -1,0 +1,58 @@
+{
+  "runs": 348,
+  "paired_uncertainty": [
+    {
+      "method": "logistic",
+      "horizon": 1,
+      "origins": 17,
+      "mean_ap_difference": -0.004401056130034938,
+      "release_block_95_interval": [
+        -0.009480337007271822,
+        -0.0004450837219614909
+      ],
+      "block_length": 3,
+      "seed": 42,
+      "resamples": 2000
+    },
+    {
+      "method": "logistic",
+      "horizon": 3,
+      "origins": 15,
+      "mean_ap_difference": -0.0020915614896407078,
+      "release_block_95_interval": [
+        -0.005001956397992595,
+        0.0005453673557465381
+      ],
+      "block_length": 3,
+      "seed": 42,
+      "resamples": 2000
+    },
+    {
+      "method": "boosted",
+      "horizon": 1,
+      "origins": 17,
+      "mean_ap_difference": 0.0016303709360941045,
+      "release_block_95_interval": [
+        -0.0006665155228878509,
+        0.003947674090514102
+      ],
+      "block_length": 3,
+      "seed": 42,
+      "resamples": 2000
+    },
+    {
+      "method": "boosted",
+      "horizon": 3,
+      "origins": 15,
+      "mean_ap_difference": -0.003298416851087164,
+      "release_block_95_interval": [
+        -0.008958203517929066,
+        0.002701378884401835
+      ],
+      "block_length": 3,
+      "seed": 42,
+      "resamples": 2000
+    }
+  ],
+  "source_mismatches": 547
+}

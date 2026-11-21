@@ -1,0 +1,60 @@
+[
+  {
+    "year": 2023,
+    "files": [
+      "submission_summary_2023-01.txt.gz",
+      "submission_summary_2023-02.txt.gz",
+      "submission_summary_2023-03.txt.gz",
+      "submission_summary_2023-04.txt.gz",
+      "submission_summary_2023-05.txt.gz",
+      "submission_summary_2023-06.txt.gz",
+      "submission_summary_2023-07.txt.gz",
+      "submission_summary_2023-08.txt.gz",
+      "submission_summary_2023-09.txt.gz",
+      "submission_summary_2023-10.txt.gz",
+      "submission_summary_2023-11.txt.gz",
+      "submission_summary_2023-12.txt.gz",
+      "variant_summary_2023-01.txt.gz",
+      "variant_summary_2023-02.txt.gz",
+      "variant_summary_2023-03.txt.gz",
+      "variant_summary_2023-04.txt.gz",
+      "variant_summary_2023-05.txt.gz",
+      "variant_summary_2023-06.txt.gz",
+      "variant_summary_2023-07.txt.gz",
+      "variant_summary_2023-08.txt.gz",
+      "variant_summary_2023-09.txt.gz",
+      "variant_summary_2023-10.txt.gz",
+      "variant_summary_2023-11.txt.gz",
+      "variant_summary_2023-12.txt.gz"
+    ]
+  },
+  {
+    "year": 2024,
+    "files": [
+      "submission_summary_2024-01.txt.gz",
+      "submission_summary_2024-02.txt.gz",
+      "submission_summary_2024-03.txt.gz",
+      "submission_summary_2024-04.txt.gz",
+      "submission_summary_2024-05.txt.gz",
+      "submission_summary_2024-06.txt.gz",
+      "submission_summary_2024-07.txt.gz",
+      "submission_summary_2024-08.txt.gz",
+      "submission_summary_2024-09.txt.gz",
+      "submission_summary_2024-10.txt.gz",
+      "submission_summary_2024-11.txt.gz",
+      "submission_summary_2024-12.txt.gz",
+      "variant_summary_2024-01.txt.gz",
+      "variant_summary_2024-02.txt.gz",
+      "variant_summary_2024-03.txt.gz",
+      "variant_summary_2024-04.txt.gz",
+      "variant_summary_2024-05.txt.gz",
+      "variant_summary_2024-06.txt.gz",
+      "variant_summary_2024-07.txt.gz",
+      "variant_summary_2024-08.txt.gz",
+      "variant_summary_2024-09.txt.gz",
+      "variant_summary_2024-10.txt.gz",
+      "variant_summary_2024-11.txt.gz",
+      "variant_summary_2024-12.txt.gz"
+    ]
+  }
+]

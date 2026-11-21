@@ -25,3 +25,46 @@ use that canonical organisation too. Original submitted names stay in raw eviden
 name changes start a new evidence episode. The organisation table retains its
 first observed display name. This is a documented identity heuristic, not an
 assertion that the source provided an official organisation identifier.
+
+## Final three-gene experiment protocol
+
+The delivered cohort remains the user's selected BRCA1, BRCA2 and TP53 scope,
+across January 2025–November 2026. Both 1- and 3-release endpoint targets are run
+with fixed logistic regression / boosted-tree parameters, seed 42, and preprocessing
+fit only to eligible past training rows. Training origin u is allowed only when
+u+h <= the prediction origin. Early partial-history rows are explicit via
+history_length; primary paired reporting begins after six releases of history.
+There is no future-label hyperparameter search or automatic winner selection.
+
+Fitted artifacts have SHA-256 checksums and source hashes. Run completion commits
+independently, so a stopped job preserves completed runs. Repeating the exact code,
+cutoff and configuration refreshes metrics without refitting or duplicating scores.
+The API lists the latest version of each method/input/origin/horizon combination;
+older run IDs remain queryable through their reproducibility endpoint.
+
+Predictions beyond the final archive have unknown outcomes. Model-independent
+outcomes and archived feature documents remain separate. The prediction-input UI
+shows observed values, not unsupported causal explanations or invented SHAP values.
+Scores remain uncalibrated; the reliability plot measures that limitation.
+
+Sensitivity checks remove feature groups, shuffle historical input blocks within
+gene at the test origin, and exclude each gene from training in turn. They use
+fixed settings at the last evaluable h1 origin and do not choose production models.
+Paired uncertainty uses a circular moving-block bootstrap over release origins
+(block 3, 2,000 draws, seed 42). This is a limited-panel diagnostic, not evidence
+of clinical validity or robust generalisation to other genes.
+
+Evidence revisions follow the importer contract's classification, review,
+evaluation-date and identity fields; unversioned prose-only changes are not used
+as model inputs. The source mismatch ledger retains every official-versus-calculated
+disagreement and a secondary result subset checks agreeing endpoint pairs.
+
+## Laptop-friendly projections
+
+MongoDB stores each variant/origin/input-set feature vector once and a context
+document per model run. A prediction joins those two identities; its score remains
+in PostgreSQL. Older prototype per-prediction context documents may remain as
+legacy records but are not required by the new read path. The API verifies the
+projected feature hash before displaying MongoDB context and can fall back to the
+authoritative relational snapshot while delivery is pending. Run CPU-intensive
+jobs sequentially under the Compose CPU/memory limits in the README.

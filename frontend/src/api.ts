@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 export async function get<T>(path:string,signal?:AbortSignal):Promise<T>{
- const r=await fetch('/api'+path,{signal});
- if(!r.headers.get('content-type')?.includes('application/json'))throw new Error('The backend is unavailable. Check the local services and try again.');
+ const r=await fetch('/api'+path,{signal:signal?AbortSignal.any([signal,AbortSignal.timeout(20000)]):AbortSignal.timeout(20000)}).catch((error:Error)=>{if(error.name==='TimeoutError')throw new Error('Loading took too long. Try again.');if(error instanceof TypeError)throw new Error('We couldn’t connect. Check your connection and try again.');throw error;});
+ if(r.status===401){window.dispatchEvent(new Event('auth:expired'));throw new Error('Your session has expired. Sign in to continue.');}
+ if(!r.headers.get('content-type')?.includes('application/json'))throw new Error('We couldn’t load these records. Try again in a moment.');
  const data=await r.json();if(!r.ok)throw new Error(data.detail||'The request failed. Try again.');return data as T;
 }
 export function useResource<T>(path:string|null){

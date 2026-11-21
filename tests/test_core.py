@@ -12,6 +12,7 @@ from backend.services import variant_detail
 
 @pytest.fixture
 def database(monkeypatch):
+    monkeypatch.setenv('AUTH_ENABLED','false') # Existing research/API tests run independently of account tests.
     if os.getenv('RUN_DB_TESTS')!='1':pytest.skip('Set RUN_DB_TESTS=1 for isolated PostgreSQL integration tests')
     base=os.getenv('DATABASE_URL','postgresql://kerykeion:local-demo-only@localhost:55433/kerykeion')
     schema='test_'+uuid.uuid4().hex
@@ -103,6 +104,11 @@ def test_api_and_model_pipeline(database):
         assert client.get('/api/genes/BRCA1/variants?limit=10000').status_code==422
         assert client.post('/api/projections/replay').status_code==403
         assert client.get('/api/audit-queue.csv?model=1').status_code==200
+        all_rows=client.get('/api/audit-queue?model=1&budget=100').json()['predictions']
+        page=client.get('/api/audit-queue?model=1&budget=100&limit=2&offset=2').json()['predictions']
+        assert [r['variant_id'] for r in page]==[r['variant_id'] for r in all_rows[2:4]]
+        assert page[0]['review_rank']==3
+        assert client.get('/api/audit-queue?offset=-1').status_code==422
         filtered=client.get('/api/audit-queue?model=1&gene=BRCA1&classification=P&budget=1').json()
         assert filtered['total']>0 and filtered['budget_count']==1
         assert len(filtered['predictions'])==1
@@ -146,6 +152,16 @@ def test_projection_partial_retry_and_idempotency(database,monkeypatch):
         assert mongo[namespace].scv_evidence.count_documents({})==40
         assert services.evidence('SCVFIX100A',1)['raw']['fixture'] is True
         assert len(services.provenance(100,1))==2
+        from backend.ml import benchmark
+        benchmark(1,1)
+        projected=projections.replay()
+        assert not projected['errors']
+        assert mongo[namespace].feature_vectors.count_documents({})==40
+        assert mongo[namespace].prediction_explanations.count_documents({})==4
+        assert projections.replay()['processed']==0
+        with connect() as c:pid=c.execute('SELECT prediction_id FROM drift_prediction LIMIT 1').fetchone()['prediction_id']
+        assert services.prediction_context(pid)['source']=='MongoDB verified archived feature snapshot'
+
     finally:
         mongo.drop_database(namespace);mongo.close()
         with graph.session() as s:s.run('MATCH (n {dataset:$dataset}) DETACH DELETE n',dataset=namespace).consume()
@@ -179,3 +195,83 @@ def test_renamed_submitter_keeps_identity_and_historical_evidence(database):
         assert alias['submitter_id']=='name:old'
         assert not c.execute("SELECT 1 FROM submitter WHERE submitter_id='name:new'").fetchone()
         assert c.execute("SELECT 1 FROM assertion_version WHERE raw->>'Submitter'='Renamed lab'").fetchone()
+
+def test_archive_large_evidence_field_is_preserved(tmp_path):
+    import csv,gzip
+    from etl.archive import archive_rows
+    path=tmp_path/'large-evidence.txt.gz'
+    evidence='Clinical evidence\n'+('x'*150000)
+    with gzip.open(path,'wt',newline='') as f:
+        writer=csv.writer(f,delimiter='\t')
+        writer.writerow(['#VariationID','Description'])
+        writer.writerow(['123',evidence])
+    previous=csv.field_size_limit()
+    try:
+        csv.field_size_limit(131072)
+        rows=list(archive_rows(path))
+        assert rows==[{'VariationID':'123','Description':evidence}]
+    finally:
+        csv.field_size_limit(previous)
+
+def test_training_runs_are_resumable_and_horizon_cutoffs_hold(database):
+    from backend.ml import benchmark
+    from backend.services import models,prediction_context,model_manifest
+    for d in documents():import_document(d)
+    first=benchmark(5,3)
+    assert first['runs']
+    with connect() as c:
+        before=c.execute('SELECT count(*) n FROM drift_prediction').fetchone()['n']
+    second=benchmark(5,3)
+    assert {r['model_id'] for r in first['runs']}=={r['model_id'] for r in second['runs']}
+    with connect() as c:
+        assert c.execute('SELECT count(*) n FROM drift_prediction').fetchone()['n']==before
+        for row in c.execute('SELECT * FROM model_version'):
+            cutoff=row['metadata'].get('latest_training_origin')
+            assert cutoff is None or cutoff+row['horizon']<=row['origin_release_id']
+        pid=c.execute('SELECT prediction_id FROM drift_prediction LIMIT 1').fetchone()['prediction_id']
+    context=prediction_context(pid)
+    assert context['features'] and context['feature_hash']
+    assert model_manifest(context['model_id'])['horizon']==3
+
+def test_next_change_counts_reversal_and_censors_missing_months():
+    import numpy as np
+    from backend.timing import followup,curve,timing_metrics
+    states=np.array([[-1,0,1,0,0],[-1,0,0,-1,1],[-1,0,0,0,0]])
+    duration,event=followup(states,1,4)
+    assert duration.tolist()==[1,1,3]
+    assert event.tolist()==[True,False,False]
+    # The event is absent at an earlier knowledge cutoff, never leaked backward.
+    d,e=followup(states,1,1)
+    assert d.tolist()==[0,0,0] and not e.any()
+    mass,cumulative=curve(np.full((3,6),.1))
+    assert np.allclose(mass.sum(axis=1),cumulative[:,-1])
+    assert np.all(np.diff(cumulative,axis=1)>=0)
+    assert np.allclose(cumulative[:,2],1-.9**3)
+    metrics=timing_metrics(duration,event,cumulative)
+    assert metrics['observed_events']==1 and metrics['censored']==2
+    assert metrics['horizons'][0]['coverage']==1
+
+def test_timing_filters_and_first_event_forecast_api(database):
+    from backend.services import timing_queue,variant_timing
+    from psycopg.types.json import Jsonb
+    for d in documents():import_document(d)
+    with connect() as c:
+        rid=c.execute("INSERT INTO timing_run(run_key,origin_release_id,method,max_months,metadata,metrics) VALUES('test',2,'boosted_hazard',6,'{}','{}') RETURNING run_id").fetchone()['run_id']
+        for i,vid in enumerate([100,101,110],1):
+            c.execute('INSERT INTO timing_forecast VALUES(%s,%s,%s,%s,3.0,NULL,%s)',(rid,vid,Jsonb([.01]*6),Jsonb([.01,.02,.03,.04,.05,.06]),i))
+    result=timing_queue(2,'BRCA1','',3,100,100)
+    assert result['total']==2
+    assert {r['variant_id'] for r in result['predictions']}=={100,101}
+    page=timing_queue(2,'BRCA1','',3,100,1,1)
+    assert [r['variant_id'] for r in page['predictions']]==[101]
+    assert page['predictions'][0]['review_rank']==2
+    assert timing_queue(2,'BRCA1','',3,1,1,1)['predictions']==[]
+    assert variant_timing(110,2)['run_id']==rid
+    assert variant_timing(110,1) is None
+    from backend.app import app
+    from fastapi.testclient import TestClient
+    with TestClient(app) as client:
+        assert client.get('/api/timing/forecasts?origin=2&months=7').status_code==422
+        response=client.get('/api/timing/forecasts.csv?origin=2&gene=BRCA1&budget=100')
+        assert len(response.text.strip().splitlines())==3
+        assert 'conditional_mean_month' in response.text

@@ -1,0 +1,65 @@
+{
+  "passed": true,
+  "releases": 23,
+  "source_artifacts": 46,
+  "counts": {
+    "assertion_version": 173721,
+    "change_event": 2412,
+    "variant_state": 896935,
+    "model_version": 356,
+    "drift_prediction": 13913084,
+    "feature_materialization": 1793870
+  },
+  "services": {
+    "postgres": {
+      "status": "ready",
+      "releases": 23
+    },
+    "outbox": {
+      "mongo_pending": 0,
+      "neo4j_pending": 0
+    },
+    "mongodb": {
+      "status": "ready",
+      "evidence": 173721
+    },
+    "neo4j": {
+      "status": "ready"
+    }
+  },
+  "mongo_feature_vectors": 1793870,
+  "neo4j_episodes": 173721,
+  "neo4j_changes": 2412,
+  "api_timings": {
+    "/api/releases": {
+      "first_request_ms": 32.52708400395932,
+      "warm_p50_ms": 9.669249997386942,
+      "warm_p95_ms": 13.04645900381729,
+      "repetitions": 10
+    },
+    "/api/genes?release=23": {
+      "first_request_ms": 32.75683299580123,
+      "warm_p50_ms": 22.119104000012157,
+      "warm_p95_ms": 24.077000001852866,
+      "repetitions": 10
+    },
+    "/api/variants/188342?release=2": {
+      "first_request_ms": 138.8065409992123,
+      "warm_p50_ms": 16.356166499463143,
+      "warm_p95_ms": 25.41279199795099,
+      "repetitions": 10
+    },
+    "/api/audit-queue?budget=1&classification=B&gene=BRCA1": {
+      "first_request_ms": 89.13491700513987,
+      "warm_p50_ms": 66.52558299902012,
+      "warm_p95_ms": 109.59379099949729,
+      "repetitions": 10
+    },
+    "/api/experiments/summary": {
+      "first_request_ms": 11.960874995565973,
+      "warm_p50_ms": 11.780291999457404,
+      "warm_p95_ms": 16.103208006825298,
+      "repetitions": 10
+    }
+  }
+}

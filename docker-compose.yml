@@ -1,6 +1,8 @@
 services:
   postgres:
     image: postgres:16-alpine
+    mem_limit: 768m
+    cpus: 1.0
     environment:
       POSTGRES_DB: kerykeion
       POSTGRES_USER: kerykeion
@@ -14,15 +16,20 @@ services:
       retries: 30
   mongo:
     image: mongo:7
+    mem_limit: 768m
+    cpus: 0.75
+    command: ["mongod", "--wiredTigerCacheSizeGB", "0.25"]
     ports: ["127.0.0.1:27018:27017"]
     volumes: ["mongo_data:/data/db"]
   neo4j:
     image: neo4j:5-community
+    mem_limit: 1g
+    cpus: 0.5
     environment:
       NEO4J_AUTH: neo4j/${NEO4J_PASSWORD:-local-demo-only}
-      NEO4J_server_memory_heap_initial__size: 256m
-      NEO4J_server_memory_heap_max__size: 512m
-      NEO4J_server_memory_pagecache_size: 256m
+      NEO4J_server_memory_heap_initial__size: 128m
+      NEO4J_server_memory_heap_max__size: 256m
+      NEO4J_server_memory_pagecache_size: 128m
     ports: ["127.0.0.1:17475:7474", "127.0.0.1:17688:7687"]
     volumes: ["neo4j_data:/data"]
 volumes:

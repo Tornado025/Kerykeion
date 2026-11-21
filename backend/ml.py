@@ -16,7 +16,8 @@ STATIC=['class_P','class_V','class_B','class_C','class_O','stars','submitters','
 TEMPORAL=['history_length','releases_since_submission','past_changes','releases_since_change','assertion_delta','submitter_delta','p_delta','v_delta','b_delta','arrivals_1','arrivals_3','arrivals_6','new_submitters_3','newest_evaluation_age','oldest_evaluation_age','evaluation_missing_fraction','recent_revision_share']
 
 def features(conn,origin,feature_set):
-    rows=conn.execute('SELECT s.*,v.gene_id FROM variant_state s JOIN variant v USING(variant_id) WHERE release_id<=%s ORDER BY variant_id,release_id',(origin,)).fetchall()
+    comparison='<=' if feature_set=='temporal' else '='
+    rows=conn.execute(f'SELECT s.*,v.gene_id FROM variant_state s JOIN variant v USING(variant_id) WHERE release_id{comparison}%s ORDER BY variant_id,release_id',(origin,)).fetchall()
     histories=defaultdict(list)
     for r in rows:histories[r['variant_id']].append(r)
     observations=conn.execute('''SELECT a.variant_id,a.submitter_id,a.first_release_id AS arrived,v.version_no,v.first_release_id,v.class_code,v.date_evaluated FROM clinical_assertion a JOIN assertion_version v USING(scv_accession)
@@ -25,6 +26,8 @@ def features(conn,origin,feature_set):
     for r in observations:obs[r['variant_id']].append(r)
     origin_date=conn.execute('SELECT release_date FROM release WHERE release_id=%s',(origin,)).fetchone()['release_date']
     result={}
+    sealed={r['variant_id']:r['feature_hash'] for r in conn.execute('SELECT variant_id,feature_hash FROM feature_materialization WHERE origin_release_id=%s AND feature_set=%s',(origin,feature_set))}
+    pending=[]
     for vid,h in histories.items():
         s=h[-1]
         if s['release_id']!=origin:continue
@@ -41,10 +44,13 @@ def features(conn,origin,feature_set):
             f['new_submitters_3']=len({r['submitter_id'] for r in observations if r['arrived']>origin-3})
             f.update(newest_evaluation_age=min(ages) if ages else -1,oldest_evaluation_age=max(ages) if ages else -1,evaluation_missing_fraction=1-len(ages)/max(1,len(observations)),recent_revision_share=sum(r['version_no']>1 and r['first_release_id']>origin-3 for r in observations)/max(1,len(observations)))
         fh=digest(f)
-        existing=conn.execute('SELECT feature_hash FROM feature_materialization WHERE variant_id=%s AND origin_release_id=%s AND feature_set=%s',(vid,origin,feature_set)).fetchone()
-        if existing and existing['feature_hash']!=fh:raise ValueError('Frozen as-of feature changed: new dataset/feature version required')
-        conn.execute('INSERT INTO feature_materialization VALUES(%s,%s,%s,%s,%s,%s) ON CONFLICT DO NOTHING',(vid,origin,feature_set,Jsonb(f),origin,fh))
+        if vid in sealed and sealed[vid]!=fh:raise ValueError('Frozen as-of feature changed: new dataset/feature version required')
+        if vid not in sealed:pending.append((vid,origin,feature_set,Jsonb(f),origin,fh))
         result[vid]=f
+    if pending:
+        with conn.cursor() as cur:
+            with cur.copy('COPY feature_materialization FROM STDIN') as copy:
+                for row in pending:copy.write_row(row)
     return result
 
 def metric_values(scores,labels,variant_ids):
@@ -59,19 +65,25 @@ def metric_values(scores,labels,variant_ids):
         out[f'budget_{budget}']=dict(selected=k,observed=len(observed),hits=hits,recall=hits/positives if positives else None,precision=hits/len(observed) if observed else None,unknown=k-len(observed))
     return out
 
-def benchmark(origin=None,horizon=1):
+def benchmark(origin=None,horizon=1,progress=None):
     completed=[];skipped=[]
     with connect() as conn:
+        if not conn.execute('SELECT pg_try_advisory_lock(720251103) ok').fetchone()['ok']:raise RuntimeError('Another model worker is running')
         max_r=conn.execute('SELECT max(release_id) r FROM release').fetchone()['r']
         if not max_r:return dict(runs=[],skipped=['Import releases first'])
         origins=[origin] if origin else list(range(2,max_r+1))
         cache={}
         def get(o,fs):
             key=(o,fs)
-            if key not in cache:cache[key]=features(conn,o,fs)
+            if key not in cache:
+                saved=conn.execute('SELECT variant_id,features FROM feature_materialization WHERE origin_release_id=%s AND feature_set=%s',(o,fs)).fetchall()
+                expected=conn.execute('SELECT count(*) n FROM variant_state WHERE release_id=%s',(o,)).fetchone()['n']
+                if len(saved)==expected and expected:cache[key]={r['variant_id']:r['features'] for r in saved}
+                else:cache[key]=features(conn,o,fs)
             return cache[key]
         for t in origins:
             if not 1<=t<=max_r:raise ValueError('Unknown origin release')
+            if progress:progress(dict(phase='training',origin=t,horizon=horizon))
             source=conn.execute('SELECT manifest_sha256 FROM release WHERE release_id<=%s ORDER BY release_id',(t,)).fetchall()
             lineage=digest(source)
             labels={r['variant_id']:r['realized_label'] for r in conn.execute('SELECT * FROM prediction_outcome WHERE origin_release_id=%s AND horizon=%s',(t,horizon)).fetchall()}
@@ -80,6 +92,15 @@ def benchmark(origin=None,horizon=1):
             configs=[('no_change','static'),('conflict','static'),('submitter_count','static'),('recency','temporal'),('logistic','static'),('logistic','temporal'),('boosted','static'),('boosted','temporal')]
             for method,fs in configs:
                 keys=STATIC+(TEMPORAL if fs=='temporal' else [])
+                rk=digest(dict(method=method,fs=fs,origin=t,horizon=horizon,lineage=lineage,features=keys,implementation=digest(open(__file__).read())))
+                existing=conn.execute('SELECT model_id FROM model_version WHERE run_key=%s',(rk,)).fetchone()
+                if existing:
+                    mid=existing['model_id']
+                    saved=conn.execute('SELECT variant_id,score FROM drift_prediction WHERE model_id=%s ORDER BY variant_id',(mid,)).fetchall()
+                    result=metric_values([r['score'] for r in saved],labels,[r['variant_id'] for r in saved])
+                    conn.execute('INSERT INTO benchmark_result VALUES(%s,%s,now()) ON CONFLICT(model_id) DO UPDATE SET metrics=EXCLUDED.metrics,created_at=now()',(mid,Jsonb(result)))
+                    completed.append(dict(model_id=mid,origin=t,method=method,feature_set=fs,metrics=result))
+                    continue
                 train_x=[];train_y=[];latest_training_origin=None
                 if method in ('logistic','boosted'):
                     for u in range(1,t-horizon+1):
@@ -106,13 +127,24 @@ def benchmark(origin=None,horizon=1):
                     meta=dict(code_hash=digest(open(__file__).read()),dataset_hash=lineage,feature_names=keys,train_rows=len(train_x),train_positives=sum(train_y),latest_training_origin=latest_training_origin,training_label_cutoff=t,seed=42,target='reconstructed-group-change',aggregation_policy='highest-review-known-group-v1',validation_status='See official-match report; reconstructed benchmark, not clinical truth')
                     mid=conn.execute('INSERT INTO model_version(model_name,feature_set,origin_release_id,horizon,trained_on_release,run_key,metadata) VALUES(%s,%s,%s,%s,%s,%s,%s) RETURNING model_id',(method,fs,t,horizon,t if train_x else None,rk,Jsonb(meta))).fetchone()['model_id']
                     order=sorted(range(len(ids)),key=lambda i:(-float(scores[i]),ids[i]))
-                    with conn.cursor() as cur:cur.executemany('INSERT INTO drift_prediction(model_id,variant_id,origin_release_id,horizon,score,audit_rank) VALUES(%s,%s,%s,%s,%s,%s)',[(mid,ids[i],t,horizon,float(scores[i]),rank) for rank,i in enumerate(order,1)])
+                    with conn.cursor() as cur:
+                        with cur.copy('COPY drift_prediction(model_id,variant_id,origin_release_id,horizon,score,audit_rank) FROM STDIN') as copy:
+                            for rank,i in enumerate(order,1):copy.write_row((mid,ids[i],t,horizon,float(scores[i]),rank))
                     if train_x:
                         from backend.db import ROOT
                         import joblib
                         path=ROOT/'artifacts/models';path.mkdir(parents=True,exist_ok=True);joblib.dump(model,path/f'{rk}.joblib')
+                    if train_x:
+                        artifact=path/f'{rk}.joblib'
+                        meta.update(artifact_sha256=hashlib.sha256(artifact.read_bytes()).hexdigest(),artifact_path=str(artifact.relative_to(ROOT)),parameters=model.get_params(deep=False),training_origin_min=1,training_origin_max=latest_training_origin)
+                        # Estimator objects in pipeline parameters are represented by their names.
+                        meta['parameters']={k:str(v) for k,v in meta['parameters'].items()}
+                        conn.execute('UPDATE model_version SET metadata=%s WHERE model_id=%s',(Jsonb(meta),mid))
                     enqueue(conn,f'model:{rk}','model',dict(model_id=mid))
                 result=metric_values(scores,labels,ids)
                 conn.execute('INSERT INTO benchmark_result VALUES(%s,%s,now()) ON CONFLICT(model_id) DO UPDATE SET metrics=EXCLUDED.metrics,created_at=now()',(mid,Jsonb(result)))
                 completed.append(dict(model_id=mid,origin=t,method=method,feature_set=fs,metrics=result))
+                conn.commit()
+                if progress:progress(dict(phase='saved_run',origin=t,horizon=horizon,method=method,feature_set=fs,model_id=mid))
+            conn.commit()
     return dict(runs=completed,skipped=skipped,warning='Small cohort benchmark; model improvement is not assumed. Origin feature history is partial and history_length is explicit.')

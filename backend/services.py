@@ -75,9 +75,9 @@ def changes(rid=None,limit=100):
         return dict(release=r,events=c.execute('SELECT e.*,v.variant_name,g.gene_symbol FROM event_details e JOIN variant v USING(variant_id) JOIN gene g USING(gene_id) WHERE to_release_id=%s ORDER BY change_type,variant_id LIMIT %s',(r['release_id'],limit)).fetchall())
 
 def models():
-    with connect() as c:return c.execute('SELECT m.*,r.label,b.metrics FROM model_version m JOIN release r ON r.release_id=m.origin_release_id LEFT JOIN benchmark_result b USING(model_id) ORDER BY m.origin_release_id DESC,m.model_id').fetchall()
+    with connect() as c:return c.execute('SELECT * FROM (SELECT DISTINCT ON(m.origin_release_id,m.horizon,m.model_name,m.feature_set) m.*,r.label,b.metrics FROM model_version m JOIN release r ON r.release_id=m.origin_release_id LEFT JOIN benchmark_result b USING(model_id) ORDER BY m.origin_release_id,m.horizon,m.model_name,m.feature_set,m.model_id DESC) latest ORDER BY origin_release_id DESC,horizon,model_id DESC').fetchall()
 
-def audit_queue(model_id=None,limit=100,budget=5,classification="",gene=""):
+def audit_queue(model_id=None,limit=100,budget=5,classification="",gene="",offset=0):
     with connect() as c:
         if model_id is None:
             row=c.execute('SELECT model_id FROM model_version ORDER BY origin_release_id DESC,model_id DESC LIMIT 1').fetchone()
@@ -95,7 +95,7 @@ def audit_queue(model_id=None,limit=100,budget=5,classification="",gene=""):
         k=max(1,math.ceil(n*budget/100)) if n else 0
         rows=c.execute(f"""SELECT p.*,v.variant_name,g.gene_symbol,s.aggregate_class,
           row_number() OVER(ORDER BY p.audit_rank) AS review_rank
-          {source} WHERE {where} ORDER BY p.audit_rank LIMIT %s""",args+[min(k,limit)]).fetchall()
+          {source} WHERE {where} ORDER BY p.audit_rank LIMIT %s OFFSET %s""",args+[min(max(0,k-offset),limit),offset]).fetchall()
         return dict(model=model,predictions=rows,total=n,budget_count=k)
 
 def provenance(vid,rid=None):
@@ -116,3 +116,114 @@ def evidence(scv,rid=None):
         doc=client[os.getenv('MONGO_DB','kerykeion')].scv_evidence.find_one({'scv_accession':scv,'version_no':version['version_no'],'dataset':DATASET},{'_id':0})
         if not doc:raise LookupError('Evidence projection is pending for this assertion version.')
         return {'source':'MongoDB historical evidence projection','scv_accession':scv,'version_no':version['version_no'],'raw':doc.get('raw',{})}
+
+
+def model_manifest(model_id):
+    with connect() as c:
+        row=c.execute('SELECT m.*,r.label,b.metrics FROM model_version m JOIN release r ON r.release_id=m.origin_release_id LEFT JOIN benchmark_result b USING(model_id) WHERE model_id=%s',(model_id,)).fetchone()
+        if not row:raise LookupError('Model run not found.')
+        return row
+
+
+def prediction_context(prediction_id):
+    with connect() as c:
+        row=c.execute('''SELECT p.prediction_id,p.model_id,p.variant_id,p.score,p.audit_rank,p.horizon,r.label AS starting_month,m.model_name,m.feature_set,f.features,f.feature_hash
+          FROM drift_prediction p JOIN model_version m USING(model_id) JOIN release r ON r.release_id=p.origin_release_id
+          JOIN feature_materialization f ON f.variant_id=p.variant_id AND f.origin_release_id=p.origin_release_id AND f.feature_set=m.feature_set
+          WHERE prediction_id=%s''',(prediction_id,)).fetchone()
+        if not row:raise LookupError('Prediction or its archived inputs not found.')
+        row['note']='These are the archived inputs used by the model. They do not establish why a classification will change.'
+        row['source']='PostgreSQL authoritative feature snapshot'
+        # Read the verified immutable document projection when available; during
+        # eventual delivery the authoritative copy remains usable.
+        try:
+            from pymongo import MongoClient
+            key=f"{DATASET}:{row['variant_id']}:{c.execute('SELECT origin_release_id FROM drift_prediction WHERE prediction_id=%s',(prediction_id,)).fetchone()['origin_release_id']}:{row['feature_set']}"
+            with MongoClient(os.getenv('MONGO_URI','mongodb://localhost:27018'),serverSelectionTimeoutMS=1000) as client:
+                doc=client[os.getenv('MONGO_DB','kerykeion')].feature_vectors.find_one({'_id':key})
+                if doc and doc['feature_hash']==row['feature_hash']:
+                    row['features']=doc['features'];row['source']='MongoDB verified archived feature snapshot'
+        except Exception:
+            pass
+        return row
+
+
+def experiment_summary():
+    with connect() as c:
+        rows=c.execute('''SELECT DISTINCT ON(m.model_name,m.feature_set,m.origin_release_id,m.horizon)
+          m.model_name,m.feature_set,m.origin_release_id,m.horizon,b.metrics FROM model_version m JOIN benchmark_result b USING(model_id)
+          ORDER BY m.model_name,m.feature_set,m.origin_release_id,m.horizon,m.model_id DESC''').fetchall()
+    # A six-release warm-up applies equally to static and temporal comparisons.
+    groups={}
+    for r in rows:
+        x=r['metrics']
+        if r['origin_release_id']<6 or not x['evaluable']:continue
+        key=(r['model_name'],r['feature_set'],r['horizon'])
+        groups.setdefault(key,[]).append(x)
+    return dict(warmup_releases=6,results=[dict(method=k[0],feature_set=k[1],horizon=k[2],evaluated_months=len(v),mean_average_precision=sum(x['average_precision'] for x in v if x['average_precision'] is not None)/max(1,sum(x['average_precision'] is not None for x in v)),mean_recall_5=sum(x['budget_5']['recall'] for x in v if x['budget_5']['recall'] is not None)/max(1,sum(x['budget_5']['recall'] is not None for x in v))) for k,v in groups.items()])
+
+
+def graph_drift_counts(first_release,last_release):
+    if first_release>last_release:raise ValueError('The first release must precede the last release.')
+    from neo4j import GraphDatabase
+    with GraphDatabase.driver(os.getenv('NEO4J_URI','bolt://localhost:17688'),auth=(os.getenv('NEO4J_USER','neo4j'),os.getenv('NEO4J_PASSWORD','local-demo-only'))) as driver:
+        with driver.session() as session:
+            return session.run('''MATCH (v:Variant {dataset:$dataset})-[e:CHANGED]->(:Release), (v)-[:IN_GENE]->(g:Gene)
+              WHERE e.type='semantic' AND e.at_release >= $first AND e.at_release <= $last
+              RETURN g.symbol AS gene,count(DISTINCT v) AS changed_variants,count(e) AS changes ORDER BY gene''',dataset=DATASET,first=first_release,last=last_release).data()
+
+
+def revisions_before_change(variant_id,release_id):
+    from neo4j import GraphDatabase
+    with GraphDatabase.driver(os.getenv('NEO4J_URI','bolt://localhost:17688'),auth=(os.getenv('NEO4J_USER','neo4j'),os.getenv('NEO4J_PASSWORD','local-demo-only'))) as driver:
+        with driver.session() as session:
+            return session.run('''MATCH (s:Submitter {dataset:$dataset})-[a:ASSERTED]->(v:Variant {dataset:$dataset,id:$variant})-[e:CHANGED]->(:Release)
+              WHERE e.type='semantic' AND e.at_release=$release AND a.version>1 AND a.from_release<=e.at_release
+              RETURN DISTINCT s.name AS submitter,a.scv AS accession,a.version AS version,a.class_code AS classification,a.from_release AS observed_release,e.at_release AS change_release
+              ORDER BY observed_release DESC,accession LIMIT 100''',dataset=DATASET,variant=variant_id,release=release_id).data()
+
+
+def timing_runs():
+    with connect() as c:
+        return c.execute('''SELECT t.*,r.label FROM timing_run t JOIN release r ON r.release_id=t.origin_release_id ORDER BY origin_release_id DESC,run_id DESC''').fetchall()
+
+
+def timing_queue(origin=None,gene='',classification='',months=3,budget=1,limit=100,offset=0):
+    with connect() as c:
+        if origin:
+            run=c.execute('SELECT t.*,r.label FROM timing_run t JOIN release r ON r.release_id=t.origin_release_id WHERE origin_release_id=%s ORDER BY run_id DESC LIMIT 1',(origin,)).fetchone()
+        else:
+            run=c.execute('SELECT t.*,r.label FROM timing_run t JOIN release r ON r.release_id=t.origin_release_id ORDER BY origin_release_id DESC,run_id DESC LIMIT 1').fetchone()
+        if not run:return dict(run=None,predictions=[],total=0,budget_count=0)
+        where='f.run_id=%s';args=[run['run_id']]
+        if gene:where+=' AND g.gene_symbol=%s';args.append(gene)
+        if classification:where+=' AND s.aggregate_class=%s';args.append(classification)
+        source='FROM timing_forecast f JOIN variant v USING(variant_id) JOIN gene g USING(gene_id) JOIN variant_state s ON s.variant_id=f.variant_id AND s.release_id='+str(run['origin_release_id'])
+        n=c.execute(f'SELECT count(*) n {source} WHERE {where}',args).fetchone()['n']
+        import math
+        count=max(1,math.ceil(n*budget/100)) if n else 0
+        # Ranking horizon changes the ordering; always filter before budgeting.
+        score=f'(f.cumulative_probabilities->>{months-1})::double precision'
+        rows=c.execute(f'''SELECT f.*,v.variant_name,g.gene_symbol,s.aggregate_class,{score} AS change_probability,
+          row_number() OVER(ORDER BY {score} DESC,f.variant_id) AS review_rank
+          {source} WHERE {where} ORDER BY {score} DESC,f.variant_id LIMIT %s OFFSET %s''',args+[min(max(0,count-offset),limit),offset]).fetchall()
+        return dict(run=run,predictions=rows,total=n,budget_count=count,months=months)
+
+
+def timing_summary():
+    import json
+    from backend.db import ROOT
+    path=ROOT/'reports/timing/results.json'
+    if not path.exists():return dict(ready=False,comparisons=[])
+    result=json.loads(path.read_text());comparisons=[]
+    for method in ('constant_hazard','class_hazard',result['selection']['selected']):
+        rows=[r['metrics'] for r in result['holdout'] if r['method']==method]
+        ci=[r['concordance'] for r in rows if r['concordance'] is not None]
+        mae=[r['event_only_timing_mae_months'] for r in rows if r['event_only_timing_mae_months'] is not None]
+        comparisons.append(dict(method=method,test_months=len(rows),concordance=sum(ci)/len(ci) if ci else None,event_only_mae_months=sum(mae)/len(mae) if mae else None))
+    return dict(ready=True,selected=result['selection']['selected'],selection=result['selection'],comparisons=comparisons,holdout=result['holdout'],resolution=result['resolution'])
+
+
+def variant_timing(variant_id,origin):
+    with connect() as c:
+        return c.execute('''SELECT f.*,r.origin_release_id,r.method,x.label FROM timing_forecast f JOIN timing_run r USING(run_id) JOIN release x ON x.release_id=r.origin_release_id WHERE f.variant_id=%s AND r.origin_release_id=%s ORDER BY r.run_id DESC LIMIT 1''',(variant_id,origin)).fetchone()

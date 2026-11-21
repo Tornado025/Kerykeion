@@ -43,6 +43,9 @@ def pick(row, *keys):
     return ''
 
 def archive_rows(path):
+    # ClinVar evidence fields can exceed Python csv's default 128 KiB limit.
+    # Keep the complete field; allow up to 64 MiB while retaining streaming rows.
+    csv.field_size_limit(max(csv.field_size_limit(), 64 * 1024 * 1024))
     with gzip.open(path, 'rt', encoding='utf-8-sig', newline='') as f:
         # submission_summary begins with explanatory comments, not the tabular header.
         for line in f:

@@ -5,7 +5,7 @@ from pymongo import MongoClient,ReplaceOne
 from neo4j import GraphDatabase
 from backend.db import connect,ROOT
 
-DATASET=json.loads((ROOT/'config/project.json').read_text())['dataset']
+DATASET=os.getenv('KERYKEION_DATASET') or json.loads((ROOT/'config/project.json').read_text())['dataset']
 
 def release_snapshot(c,rid):
     versions=c.execute('''SELECT v.*,a.variant_id,a.submitter_id,s.submitter_name,g.gene_symbol,x.gene_id,x.variant_name FROM assertion_version v JOIN clinical_assertion a USING(scv_accession) JOIN submitter s USING(submitter_id) JOIN variant x USING(variant_id) JOIN gene g USING(gene_id) WHERE v.first_release_id<=%s''',(rid,)).fetchall()
@@ -28,15 +28,20 @@ def mongo_consume(db,c,event):
         for row in rows:
             doc=dict(row);doc['_id']=f"{DATASET}:{row['variant_id']}:{row['origin_release_id']}:{row['feature_set']}";doc['dataset']=DATASET
             ops.append(ReplaceOne({'_id':doc['_id']},doc,upsert=True))
-        if ops:db.feature_vectors.bulk_write(ops,ordered=False)
-        # Transparent feature context, not fabricated SHAP or causal attributions.
-        scores=c.execute('SELECT prediction_id,variant_id,score FROM drift_prediction WHERE model_id=%s',(mid,)).fetchall()
-        lookup={r['variant_id']:r['features'] for r in rows}
-        ops=[]
-        for row in scores:
-            doc=dict(_id=f"{DATASET}:{row['prediction_id']}",dataset=DATASET,model_id=mid,prediction_id=row['prediction_id'],method='observed_feature_context',features=lookup.get(row['variant_id'],{}),note='Inputs used by this model; not a causal explanation or SHAP attribution.')
-            ops.append(ReplaceOne({'_id':doc['_id']},doc,upsert=True))
-        if ops:db.prediction_explanations.bulk_write(ops,ordered=False)
+        db.feature_vectors.create_index([('dataset',1),('origin_release_id',1),('feature_set',1)])
+        # The relational vectors are immutable: write one copy per origin/input set,
+        # not another copy for each method and horizon using those same inputs.
+        stored=db.feature_vectors.count_documents({'dataset':DATASET,'origin_release_id':model['origin_release_id'],'feature_set':model['feature_set']})
+        if ops and stored!=len(rows):db.feature_vectors.bulk_write(ops,ordered=False)
+        # One immutable context per fitted run, joined to the already stored
+        # variant/origin feature vector. Do not duplicate the same input values
+        # (or a redundant pointer) for millions of prediction rows.
+        doc=dict(_id=f'{DATASET}:model:{mid}',dataset=DATASET,model_id=mid,
+                 method='observed_feature_context',origin_release_id=model['origin_release_id'],
+                 feature_set=model['feature_set'],feature_names=model['metadata'].get('feature_names',[]),
+                 feature_vector_key=f"{DATASET}:{{variant_id}}:{model['origin_release_id']}:{model['feature_set']}",
+                 note='Join this run context to its variant/origin feature vector. Inputs are not causal explanations or SHAP attributions.')
+        db.prediction_explanations.replace_one({'_id':doc['_id']},doc,upsert=True)
 
 def graph_consume(session,c,event):
     if event['topic']!='release':return

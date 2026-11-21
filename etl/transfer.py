@@ -4,7 +4,10 @@ from concurrent.futures import ThreadPoolExecutor,as_completed
 from pathlib import Path
 import requests
 
-def download(url,target,workers=6):
+def download(url,target,workers=None):
+    workers = int(os.getenv("KERYKEION_DOWNLOAD_WORKERS", "6")) if workers is None else workers
+    if not 1 <= workers <= 8:
+        raise ValueError("Download workers must be between 1 and 8")
     probe=requests.get(url,headers={'Range':'bytes=0-0'},timeout=(30,60))
     probe.raise_for_status()
     if probe.status_code!=206 or 'Content-Range' not in probe.headers:raise ValueError('Server does not support verified ranges')

@@ -1,0 +1,484 @@
+{
+  "seed": 42,
+  "horizon": 1,
+  "origin": 22,
+  "method": "boosted",
+  "selection": "Predeclared checks; no production model selection",
+  "results": [
+    {
+      "check": "all_features",
+      "origin": 22,
+      "train_rows": 813880,
+      "features": [
+        "class_P",
+        "class_V",
+        "class_B",
+        "class_C",
+        "class_O",
+        "stars",
+        "submitters",
+        "assertions",
+        "n_p",
+        "n_vus",
+        "n_b",
+        "gene_BRCA1",
+        "gene_BRCA2",
+        "gene_TP53",
+        "history_length",
+        "releases_since_submission",
+        "past_changes",
+        "releases_since_change",
+        "assertion_delta",
+        "submitter_delta",
+        "p_delta",
+        "v_delta",
+        "b_delta",
+        "arrivals_1",
+        "arrivals_3",
+        "arrivals_6",
+        "new_submitters_3",
+        "newest_evaluation_age",
+        "oldest_evaluation_age",
+        "evaluation_missing_fraction",
+        "recent_revision_share"
+      ],
+      "metrics": {
+        "scored": 40859,
+        "evaluable": 40859,
+        "positives": 59,
+        "coverage": 1.0,
+        "average_precision": 0.01741665037069152,
+        "roc_auc": 0.8233871302758391,
+        "brier": 0.0014634753285443264,
+        "ranking_population": "all scored variants; missing endpoints not treated as negative",
+        "budget_1": {
+          "selected": 409,
+          "observed": 409,
+          "hits": 8,
+          "recall": 0.13559322033898305,
+          "precision": 0.019559902200488997,
+          "unknown": 0
+        },
+        "budget_5": {
+          "selected": 2043,
+          "observed": 2043,
+          "hits": 14,
+          "recall": 0.23728813559322035,
+          "precision": 0.006852667645619187,
+          "unknown": 0
+        }
+      }
+    },
+    {
+      "check": "history_shuffle_within_gene",
+      "origin": 22,
+      "train_rows": 813880,
+      "metrics": {
+        "scored": 40859,
+        "evaluable": 40859,
+        "positives": 59,
+        "coverage": 1.0,
+        "average_precision": 0.00825289917838759,
+        "roc_auc": 0.7815638501163178,
+        "brier": 0.0016105845887504809,
+        "ranking_population": "all scored variants; missing endpoints not treated as negative",
+        "budget_1": {
+          "selected": 409,
+          "observed": 409,
+          "hits": 7,
+          "recall": 0.11864406779661017,
+          "precision": 0.017114914425427872,
+          "unknown": 0
+        },
+        "budget_5": {
+          "selected": 2043,
+          "observed": 2043,
+          "hits": 13,
+          "recall": 0.22033898305084745,
+          "precision": 0.006363191385217817,
+          "unknown": 0
+        }
+      }
+    },
+    {
+      "check": "snapshot_only",
+      "origin": 22,
+      "train_rows": 813880,
+      "features": [
+        "class_P",
+        "class_V",
+        "class_B",
+        "class_C",
+        "class_O",
+        "stars",
+        "submitters",
+        "assertions",
+        "n_p",
+        "n_vus",
+        "n_b",
+        "gene_BRCA1",
+        "gene_BRCA2",
+        "gene_TP53"
+      ],
+      "metrics": {
+        "scored": 40859,
+        "evaluable": 40859,
+        "positives": 59,
+        "coverage": 1.0,
+        "average_precision": 0.005366123973679957,
+        "roc_auc": 0.8095199817215021,
+        "brier": 0.001562822765859726,
+        "ranking_population": "all scored variants; missing endpoints not treated as negative",
+        "budget_1": {
+          "selected": 409,
+          "observed": 409,
+          "hits": 2,
+          "recall": 0.03389830508474576,
+          "precision": 0.004889975550122249,
+          "unknown": 0
+        },
+        "budget_5": {
+          "selected": 2043,
+          "observed": 2043,
+          "hits": 8,
+          "recall": 0.13559322033898305,
+          "precision": 0.003915810083210965,
+          "unknown": 0
+        }
+      }
+    },
+    {
+      "check": "without_activity",
+      "origin": 22,
+      "train_rows": 813880,
+      "features": [
+        "class_P",
+        "class_V",
+        "class_B",
+        "class_C",
+        "class_O",
+        "stars",
+        "submitters",
+        "assertions",
+        "n_p",
+        "n_vus",
+        "n_b",
+        "gene_BRCA1",
+        "gene_BRCA2",
+        "gene_TP53",
+        "history_length",
+        "past_changes",
+        "releases_since_change",
+        "assertion_delta",
+        "submitter_delta",
+        "p_delta",
+        "v_delta",
+        "b_delta",
+        "newest_evaluation_age",
+        "oldest_evaluation_age",
+        "evaluation_missing_fraction"
+      ],
+      "metrics": {
+        "scored": 40859,
+        "evaluable": 40859,
+        "positives": 59,
+        "coverage": 1.0,
+        "average_precision": 0.012710634074553083,
+        "roc_auc": 0.8292134014622798,
+        "brier": 0.0014418717710611188,
+        "ranking_population": "all scored variants; missing endpoints not treated as negative",
+        "budget_1": {
+          "selected": 409,
+          "observed": 409,
+          "hits": 7,
+          "recall": 0.11864406779661017,
+          "precision": 0.017114914425427872,
+          "unknown": 0
+        },
+        "budget_5": {
+          "selected": 2043,
+          "observed": 2043,
+          "hits": 14,
+          "recall": 0.23728813559322035,
+          "precision": 0.006852667645619187,
+          "unknown": 0
+        }
+      }
+    },
+    {
+      "check": "without_past_changes",
+      "origin": 22,
+      "train_rows": 813880,
+      "features": [
+        "class_P",
+        "class_V",
+        "class_B",
+        "class_C",
+        "class_O",
+        "stars",
+        "submitters",
+        "assertions",
+        "n_p",
+        "n_vus",
+        "n_b",
+        "gene_BRCA1",
+        "gene_BRCA2",
+        "gene_TP53",
+        "history_length",
+        "releases_since_submission",
+        "assertion_delta",
+        "submitter_delta",
+        "p_delta",
+        "v_delta",
+        "b_delta",
+        "arrivals_1",
+        "arrivals_3",
+        "arrivals_6",
+        "new_submitters_3",
+        "newest_evaluation_age",
+        "oldest_evaluation_age",
+        "evaluation_missing_fraction",
+        "recent_revision_share"
+      ],
+      "metrics": {
+        "scored": 40859,
+        "evaluable": 40859,
+        "positives": 59,
+        "coverage": 1.0,
+        "average_precision": 0.005522492165054217,
+        "roc_auc": 0.8028956879361915,
+        "brier": 0.0014462429654772725,
+        "ranking_population": "all scored variants; missing endpoints not treated as negative",
+        "budget_1": {
+          "selected": 409,
+          "observed": 409,
+          "hits": 4,
+          "recall": 0.06779661016949153,
+          "precision": 0.009779951100244499,
+          "unknown": 0
+        },
+        "budget_5": {
+          "selected": 2043,
+          "observed": 2043,
+          "hits": 13,
+          "recall": 0.22033898305084745,
+          "precision": 0.006363191385217817,
+          "unknown": 0
+        }
+      }
+    },
+    {
+      "check": "without_deltas",
+      "origin": 22,
+      "train_rows": 813880,
+      "features": [
+        "class_P",
+        "class_V",
+        "class_B",
+        "class_C",
+        "class_O",
+        "stars",
+        "submitters",
+        "assertions",
+        "n_p",
+        "n_vus",
+        "n_b",
+        "gene_BRCA1",
+        "gene_BRCA2",
+        "gene_TP53",
+        "history_length",
+        "releases_since_submission",
+        "past_changes",
+        "releases_since_change",
+        "arrivals_1",
+        "arrivals_3",
+        "arrivals_6",
+        "new_submitters_3",
+        "newest_evaluation_age",
+        "oldest_evaluation_age",
+        "evaluation_missing_fraction",
+        "recent_revision_share"
+      ],
+      "metrics": {
+        "scored": 40859,
+        "evaluable": 40859,
+        "positives": 59,
+        "coverage": 1.0,
+        "average_precision": 0.01741665037069152,
+        "roc_auc": 0.8233871302758391,
+        "brier": 0.0014634753285443264,
+        "ranking_population": "all scored variants; missing endpoints not treated as negative",
+        "budget_1": {
+          "selected": 409,
+          "observed": 409,
+          "hits": 8,
+          "recall": 0.13559322033898305,
+          "precision": 0.019559902200488997,
+          "unknown": 0
+        },
+        "budget_5": {
+          "selected": 2043,
+          "observed": 2043,
+          "hits": 14,
+          "recall": 0.23728813559322035,
+          "precision": 0.006852667645619187,
+          "unknown": 0
+        }
+      }
+    },
+    {
+      "check": "without_evaluation_age",
+      "origin": 22,
+      "train_rows": 813880,
+      "features": [
+        "class_P",
+        "class_V",
+        "class_B",
+        "class_C",
+        "class_O",
+        "stars",
+        "submitters",
+        "assertions",
+        "n_p",
+        "n_vus",
+        "n_b",
+        "gene_BRCA1",
+        "gene_BRCA2",
+        "gene_TP53",
+        "history_length",
+        "releases_since_submission",
+        "past_changes",
+        "releases_since_change",
+        "assertion_delta",
+        "submitter_delta",
+        "p_delta",
+        "v_delta",
+        "b_delta",
+        "arrivals_1",
+        "arrivals_3",
+        "arrivals_6",
+        "new_submitters_3",
+        "recent_revision_share"
+      ],
+      "metrics": {
+        "scored": 40859,
+        "evaluable": 40859,
+        "positives": 59,
+        "coverage": 1.0,
+        "average_precision": 0.008784258112100873,
+        "roc_auc": 0.8433298022598871,
+        "brier": 0.0014430568527496377,
+        "ranking_population": "all scored variants; missing endpoints not treated as negative",
+        "budget_1": {
+          "selected": 409,
+          "observed": 409,
+          "hits": 6,
+          "recall": 0.1016949152542373,
+          "precision": 0.014669926650366748,
+          "unknown": 0
+        },
+        "budget_5": {
+          "selected": 2043,
+          "observed": 2043,
+          "hits": 17,
+          "recall": 0.288135593220339,
+          "precision": 0.008321096426823299,
+          "unknown": 0
+        }
+      }
+    },
+    {
+      "check": "leave_out_BRCA1",
+      "origin": 22,
+      "train_rows": 504648,
+      "metrics": {
+        "scored": 15339,
+        "evaluable": 15339,
+        "positives": 29,
+        "coverage": 1.0,
+        "average_precision": 0.011353246918301876,
+        "roc_auc": 0.858125182999617,
+        "brier": 0.0018810151031975152,
+        "ranking_population": "all scored variants; missing endpoints not treated as negative",
+        "budget_1": {
+          "selected": 154,
+          "observed": 154,
+          "hits": 4,
+          "recall": 0.13793103448275862,
+          "precision": 0.025974025974025976,
+          "unknown": 0
+        },
+        "budget_5": {
+          "selected": 767,
+          "observed": 767,
+          "hits": 7,
+          "recall": 0.2413793103448276,
+          "precision": 0.009126466753585397,
+          "unknown": 0
+        }
+      }
+    },
+    {
+      "check": "leave_out_BRCA2",
+      "origin": 22,
+      "train_rows": 386646,
+      "metrics": {
+        "scored": 21609,
+        "evaluable": 21609,
+        "positives": 24,
+        "coverage": 1.0,
+        "average_precision": 0.0036886134463735235,
+        "roc_auc": 0.7603997760790673,
+        "brier": 0.0030043051106813825,
+        "ranking_population": "all scored variants; missing endpoints not treated as negative",
+        "budget_1": {
+          "selected": 217,
+          "observed": 217,
+          "hits": 1,
+          "recall": 0.041666666666666664,
+          "precision": 0.004608294930875576,
+          "unknown": 0
+        },
+        "budget_5": {
+          "selected": 1081,
+          "observed": 1081,
+          "hits": 3,
+          "recall": 0.125,
+          "precision": 0.0027752081406105457,
+          "unknown": 0
+        }
+      }
+    },
+    {
+      "check": "leave_out_TP53",
+      "origin": 22,
+      "train_rows": 736466,
+      "metrics": {
+        "scored": 3911,
+        "evaluable": 3911,
+        "positives": 6,
+        "coverage": 1.0,
+        "average_precision": 0.003929585335762583,
+        "roc_auc": 0.6704438753734528,
+        "brier": 0.0020332904421437514,
+        "ranking_population": "all scored variants; missing endpoints not treated as negative",
+        "budget_1": {
+          "selected": 40,
+          "observed": 40,
+          "hits": 0,
+          "recall": 0.0,
+          "precision": 0.0,
+          "unknown": 0
+        },
+        "budget_5": {
+          "selected": 196,
+          "observed": 196,
+          "hits": 0,
+          "recall": 0.0,
+          "precision": 0.0,
+          "unknown": 0
+        }
+      }
+    }
+  ]
+}
